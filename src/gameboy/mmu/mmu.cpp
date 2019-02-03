@@ -19,9 +19,10 @@ namespace mattboy::gameboy::mmu {
     return cart_;
   }
 
-  void MMU::LoadCartridge(const std::vector<char>& data)
+  void MMU::LoadCartridge(const std::vector<char>& data, const std::string& rom_file)
   {
-    cart_ = std::shared_ptr<Cartridge>(new Cartridge(data));
+    
+    cart_ = std::make_shared<Cartridge>(data, rom_file);
   }
 
   void MMU::Reset()

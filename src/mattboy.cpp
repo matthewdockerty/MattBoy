@@ -136,9 +136,10 @@ void LoadROM(HWND hwnd)
   if (GetOpenFileName(&ofn) == TRUE)
   {
     std::vector<char> rom;
-    if(mattboy::ReadFile(std::string(ofn.lpstrFile), rom))
+    const std::string file = std::string(ofn.lpstrFile);
+    if(mattboy::ReadFile(file, rom))
     {
-      gameboy.LoadCartridge(rom);
+      gameboy.LoadCartridge(rom, file);
       SetWindowTextA(hwnd, std::string(WINDOW_TITLE).append(": ").append(gameboy.GetCartridge()->GetTitle()).c_str());
     }
     else

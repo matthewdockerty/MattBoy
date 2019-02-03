@@ -18,9 +18,9 @@ namespace mattboy::gameboy {
       cpu_.Reset();
     }
 
-    void Gameboy::LoadCartridge(const std::vector<char>& data)
+    void Gameboy::LoadCartridge(const std::vector<char>& data, const std::string& rom_file)
     {
-      mmu_.LoadCartridge(data);
+      mmu_.LoadCartridge(data, rom_file);
       Reset();
     }
 

@@ -22,6 +22,8 @@ namespace mattboy {
     result.reserve(filesize);
     result.insert(result.begin(), std::istream_iterator<char>(file),std::istream_iterator<char>());
 
+    file.close();
+
     return true;
   }
 

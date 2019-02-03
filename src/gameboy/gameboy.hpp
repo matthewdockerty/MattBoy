@@ -13,7 +13,7 @@ namespace mattboy::gameboy {
       ~Gameboy();
 
       void Reset();
-      void LoadCartridge(const std::vector<char>& data);
+      void LoadCartridge(const std::vector<char>& data, const std::string& rom_file);
       std::shared_ptr<mmu::Cartridge> GetCartridge();
 
     private:
