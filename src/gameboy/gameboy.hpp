@@ -14,6 +14,7 @@ namespace mattboy::gameboy {
 
       void Reset();
       void LoadCartridge(const std::vector<char>& data);
+      std::shared_ptr<mmu::Cartridge> GetCartridge();
 
     private:
       mmu::MMU mmu_;

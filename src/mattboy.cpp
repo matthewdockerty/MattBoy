@@ -41,7 +41,7 @@ HMENU view_menu, view_window_size_menu;
 bool quit;
 
 int screen[SCREEN_WIDTH * SCREEN_HEIGHT];
-int scale_factor = 2;
+int scale_factor = 3;
 
 mattboy::gameboy::Gameboy gameboy;
 
@@ -139,6 +139,7 @@ void LoadROM(HWND hwnd)
     if(mattboy::ReadFile(std::string(ofn.lpstrFile), rom))
     {
       gameboy.LoadCartridge(rom);
+      SetWindowTextA(hwnd, std::string(WINDOW_TITLE).append(": ").append(gameboy.GetCartridge()->GetTitle()).c_str());
     }
     else
     {

@@ -12,13 +12,28 @@ namespace mattboy::gameboy::mmu {
 
   Cartridge::Cartridge(const std::vector<char>& data) : valid_(true)
   {
-    std::cout << "CART" << data.size() << std::endl;
+    for (int i = 0; i < NINTENDO_LOGO_SIZE; i++)
+    {
+      if(static_cast<uint8_t>(data[NINTENDO_LOGO_LOCATION + i]) != nintendo_logo_[i])
+      {
+        valid_ = false;
+        break;
+      }
+    }
+
+    title_ = std::string(&data[TITLE_LOCATION], &data[TITLE_LOCATION] + TITLE_SIZE);
     
+    std::cout << "VALID: " << valid_ << std::endl;
   }
 
   Cartridge::~Cartridge()
   {
 
+  }
+
+  const std::string& Cartridge::GetTitle()
+  {
+    return title_;
   }
 
 }

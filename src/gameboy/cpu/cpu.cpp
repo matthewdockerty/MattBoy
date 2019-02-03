@@ -6,10 +6,7 @@ namespace mattboy::gameboy::cpu {
 
   CPU::CPU()
   {
-    Reset();
 
-    std::printf("af: 0x%04x   b: 0x%02x   c: 0x%02x   d: 0x%02x   e: 0x%02x   h: 0x%02x   l: 0x%02x   pc: 0x%04x   sp: 0x%04x\n", *reinterpret_cast<uint16_t*>(&registers_.a_), registers_.b_, registers_.c_, registers_.d_, registers_.e_, registers_.h_, registers_.l_, sp_, pc_);
-    
   }
 
   CPU::~CPU()

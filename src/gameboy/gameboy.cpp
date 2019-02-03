@@ -24,4 +24,9 @@ namespace mattboy::gameboy {
       Reset();
     }
 
+    std::shared_ptr<mmu::Cartridge> Gameboy::GetCartridge()
+    {
+      return mmu_.GetCartridge();
+    }
+
 } 
