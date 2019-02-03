@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Programming Libraries/SDL2-2.0.9/i686-w64-mingw32/include/**"
+            ],
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
