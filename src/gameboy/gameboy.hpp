@@ -16,6 +16,8 @@ namespace mattboy::gameboy {
       void LoadCartridge(const std::vector<char>& data, const std::string& rom_file);
       std::shared_ptr<mmu::Cartridge> GetCartridge();
 
+      void Cycle();
+
     private:
       mmu::MMU mmu_;
       cpu::CPU cpu_;

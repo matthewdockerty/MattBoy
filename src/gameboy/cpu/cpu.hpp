@@ -2,6 +2,7 @@
 #define CPU_H_
 
 #include <cstdint>
+#include "../mmu/mmu.hpp"
 
 #define REG_A registers_.a_
 #define REG_F registers_.f_
@@ -26,6 +27,7 @@ namespace mattboy::gameboy::cpu {
       ~CPU();
 
       void Reset();
+      void Cycle(mmu::MMU& mmu);
 
     private:
       struct

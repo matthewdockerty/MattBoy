@@ -30,4 +30,10 @@ namespace mattboy::gameboy {
       return mmu_.GetCartridge();
     }
 
+    void Gameboy::Cycle()
+    {
+      if (mmu_.GetCartridge() != nullptr && mmu_.GetCartridge()->IsValid())
+        cpu_.Cycle(mmu_);
+    }
+
 } 
