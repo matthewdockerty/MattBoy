@@ -27,10 +27,14 @@ namespace mattboy::gameboy::cpu {
 
   void CPU::Cycle(mmu::MMU& mmu)
   {
-    uint8_t instruction = mmu.ReadByte(pc_);
-    pc_++;
-    std::cout << instruction << std::endl;
+    uint8_t instruction = mmu.ReadByte(pc_++);
+    printf("%02x\n", instruction);
     
+    switch (instruction)
+    {
+      
+    }
+
   }
 
 }

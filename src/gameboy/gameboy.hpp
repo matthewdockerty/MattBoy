@@ -17,10 +17,12 @@ namespace mattboy::gameboy {
       std::shared_ptr<mmu::Cartridge> GetCartridge();
 
       void Cycle();
+      void SetRunning(bool value);
 
     private:
       mmu::MMU mmu_;
       cpu::CPU cpu_;
+      bool running_;
   };
 
 }

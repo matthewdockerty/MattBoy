@@ -57,8 +57,6 @@ namespace mattboy::gameboy::mmu {
     WriteByte(0xFF4A, 0x00);
     WriteByte(0xFF4B, 0x00);
     WriteByte(0xFFFF, 0x00);
-
-    printf("%x\n", ReadByte(0x0001));
   }
 
   uint8_t MMU::ReadByte(uint16_t address)
@@ -109,8 +107,11 @@ namespace mattboy::gameboy::mmu {
       memory_[address - 0xC000] = value;
 
       // Echo RAM
-      if (address >= 0xC000 && address < 0xE000)
+      if (address >= 0xC000 && address <= 0xDDFF)
         memory_[address - 0xC000 + 0x2000] = value;
+
+      if (address >= 0xE000 && address <= 0xFDFF)
+        memory_[address - 0xC000 - 0x2000] = value;
     }
 
   }

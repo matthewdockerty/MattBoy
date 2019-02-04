@@ -1,9 +1,12 @@
 #include <Windows.h>
 #include <iostream>
 #include <thread>
-#include <math.h>
+#include <atomic>
+#include <mutex>
+
 #include "gameboy/gameboy.hpp"
 #include "util.hpp"
+
 
 #define WINDOW_TITLE "MattBoy"
 #define SCREEN_WIDTH 160
@@ -38,12 +41,13 @@ HMENU file_menu;
 HMENU emulation_menu, emulation_type_menu, emulation_speed_menu;
 HMENU view_menu, view_window_size_menu;
 
-bool quit;
+std::atomic<bool> quit(false);
 
 int screen[SCREEN_WIDTH * SCREEN_HEIGHT];
 int scale_factor = 3;
 
 mattboy::gameboy::Gameboy gameboy;
+std::mutex mutex;
 
 void AddMenus(HWND hwnd)
 {
@@ -139,11 +143,21 @@ void LoadROM(HWND hwnd)
     const std::string file = std::string(ofn.lpstrFile);
     if(mattboy::ReadFile(file, rom))
     {
+      mutex.lock();
+
       gameboy.LoadCartridge(rom, file);
       if (gameboy.GetCartridge()->IsValid())
+      {
         SetWindowTextA(hwnd, std::string(WINDOW_TITLE).append(": ").append(gameboy.GetCartridge()->GetTitle()).c_str());
+        gameboy.SetRunning(true);
+      }
       else
+      {
         MessageBox ( NULL , "Unable to load cartridge. It is either invalid or unsupported at this time.", "Invalid Cartridge!" , MB_OK);
+        gameboy.SetRunning(false);
+      }
+
+      mutex.unlock();
     }
     else
     {
@@ -177,17 +191,23 @@ void MenuItemClick(HWND hwnd, WPARAM wParam)
     state = GetMenuState(emulation_menu, IDM_EMULATION_PAUSE, MF_BYCOMMAND);
     if (state == MF_CHECKED)
     {
-      std::cout << "TODO: Unpause" << std::endl;
+      mutex.lock();
+      gameboy.SetRunning(true);
+      mutex.unlock();
       CheckMenuItem(emulation_menu, IDM_EMULATION_PAUSE, MF_UNCHECKED);
     }
     else
     {
-      std::cout << "TODO: Pause" << std::endl;
+      mutex.lock();
+      gameboy.SetRunning(false);
+      mutex.unlock();
       CheckMenuItem(emulation_menu, IDM_EMULATION_PAUSE, MF_CHECKED);
     }
     break;
   case IDM_EMULATION_RESET:
-    std::cout << "TODO: Reset" << std::endl;
+    mutex.lock();
+    gameboy.Reset();
+    mutex.unlock();
     break;
   case IDM_EMULATION_SPEED_1:
     CheckMenuRadioItem(emulation_speed_menu, IDM_EMULATION_SPEED_1, IDM_EMULATION_SPEED_10, IDM_EMULATION_SPEED_1, MF_BYCOMMAND);
@@ -292,7 +312,9 @@ void Loop(HWND hwnd)
 
   while (!quit)
   {
+    mutex.lock();
     gameboy.Cycle();
+    mutex.unlock();
 
     val++;
     val %= 3;

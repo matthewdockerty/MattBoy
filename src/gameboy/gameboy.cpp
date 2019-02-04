@@ -3,7 +3,7 @@
 namespace mattboy::gameboy {
     using namespace mmu;
 
-    Gameboy::Gameboy()
+    Gameboy::Gameboy() : running_(false)
     {
         
     }
@@ -30,9 +30,14 @@ namespace mattboy::gameboy {
       return mmu_.GetCartridge();
     }
 
+    void Gameboy::SetRunning(bool value)
+    {
+      running_ = value;
+    }
+
     void Gameboy::Cycle()
     {
-      if (mmu_.GetCartridge() != nullptr && mmu_.GetCartridge()->IsValid())
+      if (running_ && mmu_.GetCartridge() != nullptr && mmu_.GetCartridge()->IsValid())
         cpu_.Cycle(mmu_);
     }
 
