@@ -18,6 +18,7 @@ namespace mattboy::gameboy::mmu {
       void Reset();
 
       uint8_t ReadByte(uint16_t address);
+      uint16_t Read2Bytes(uint16_t address);
       void WriteByte(uint16_t address, uint8_t value);
 
     private:
@@ -29,7 +30,7 @@ namespace mattboy::gameboy::mmu {
 
       int current_rom_bank_;
       int current_ram_bank_;
-      
+
       // rom_0_[0x4000];
       // rom_n_[0x4000];
       // ram_video_[0x2000];

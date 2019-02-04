@@ -41,6 +41,9 @@ namespace mattboy::gameboy::cpu {
       uint16_t sp_;
       uint16_t pc_;
 
+      static const int CPU_SPEED_CLOCKS_HZ = 4194304;
+      static constexpr float NANOSECONDS_PER_CLOCK = 1000000000.0 / CPU_SPEED_CLOCKS_HZ; 
+
       inline void RegisterSet(uint8_t& reg, uint8_t value) { reg = value; };
       inline void RegisterSetPair(uint8_t& first, uint16_t value)
       {

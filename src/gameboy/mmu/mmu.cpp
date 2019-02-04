@@ -83,6 +83,16 @@ namespace mattboy::gameboy::mmu {
 
     return 0;
   }
+
+  uint16_t MMU::Read2Bytes(uint16_t address)
+  {
+    uint8_t low = ReadByte(address);
+    uint8_t high = ReadByte(address + 1);
+
+    uint16_t result = (high << 8) | low;
+
+    return result;
+  }
   
   void MMU::WriteByte(uint16_t address, uint8_t value)
   {

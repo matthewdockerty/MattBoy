@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 
 #include <iostream>
+#include <chrono>
 
 namespace mattboy::gameboy::cpu {
 
@@ -27,12 +28,34 @@ namespace mattboy::gameboy::cpu {
 
   void CPU::Cycle(mmu::MMU& mmu)
   {
+    int cycles = 0; // CPU cycle count used for instruction (measured in CLOCK CYCLES, with a 4.19MHz clockspeed)
+    const auto start_time = std::chrono::high_resolution_clock::now();
+
     uint8_t instruction = mmu.ReadByte(pc_++);
-    printf("%02x\n", instruction);
+    printf("instruction: %02x   pc: %04x\n", instruction, pc_);
     
     switch (instruction)
     {
-      
+      case 0x00: // No op
+        cycles += 4;
+        break;
+      case 0xC3: // Jump to a memory address
+        cycles += 16;
+        pc_ = mmu.Read2Bytes(pc_);
+        break;
+      default:
+        printf("unimplemented opcode: 0x%02x\n", instruction);
+        for (; ;);
+        break;
+    }
+
+    // CPU cycle timing
+    auto elapsed_time = std::chrono::high_resolution_clock::now() - start_time;
+    long long nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count();
+    while (nanoseconds < cycles * NANOSECONDS_PER_CLOCK)
+    {
+      elapsed_time = std::chrono::high_resolution_clock::now() - start_time;
+      nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count();
     }
 
   }
