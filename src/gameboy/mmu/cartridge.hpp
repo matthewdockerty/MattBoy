@@ -32,6 +32,9 @@ namespace mattboy::gameboy::mmu {
       ~Cartridge();
 
       const std::string& GetTitle();
+      std::shared_ptr<MBC> GetMBC();
+
+      bool IsValid();
 
     private:
 

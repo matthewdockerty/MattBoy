@@ -6,19 +6,15 @@ namespace mattboy::gameboy::mmu {
 
   MBCNone::MBCNone(CartridgeType type, int rom_size, int ram_size, bool battery, const std::vector<char>& data) : MBC(type, rom_size, ram_size, battery)
   {
-    rom_bank_0_ = new uint8_t[ROM_BANK_SIZE];
-    rom_bank_1_ = new uint8_t[ROM_BANK_SIZE];
     ram_ = new uint8_t[RAM_SIZE];
 
     memcpy(rom_bank_0_, &data[0], ROM_BANK_SIZE);
     memcpy(rom_bank_1_, &data[ROM_BANK_SIZE], ROM_BANK_SIZE);
-    // TODO: Load battery backed RAM.
+    // TODO: Load battery backed RAM from saved file
   }
 
   MBCNone::~MBCNone()
   {
-    delete rom_bank_0_;
-    delete rom_bank_1_;
     delete ram_;
   }
 

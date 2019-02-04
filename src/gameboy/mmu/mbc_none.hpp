@@ -18,8 +18,8 @@ namespace mattboy::gameboy::mmu {
       uint8_t* GetRAMBankN(int n);
 
     private:
-      uint8_t* rom_bank_0_;
-      uint8_t* rom_bank_1_;
+      uint8_t rom_bank_0_[ROM_BANK_SIZE];
+      uint8_t rom_bank_1_[ROM_BANK_SIZE];
       uint8_t* ram_;
       static const int RAM_SIZE = 8 * 1024;
   };

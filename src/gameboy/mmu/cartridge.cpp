@@ -112,4 +112,13 @@ namespace mattboy::gameboy::mmu {
     return title_;
   }
 
+  std::shared_ptr<MBC> Cartridge::GetMBC()
+  {
+    return mem_bank_controller_;
+  }
+
+  bool Cartridge::IsValid()
+  {
+    return valid_;
+  }
 }

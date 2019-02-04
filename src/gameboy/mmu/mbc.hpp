@@ -16,7 +16,7 @@ namespace mattboy::gameboy::mmu {
       virtual uint8_t* GetROMBankN(int n) = 0;
       virtual uint8_t* GetRAMBankN(int n) = 0;
 
-      const static int ROM_BANK_SIZE = 16 * 1024;
+      static const int ROM_BANK_SIZE = 16 * 1024;
 
     protected:
       CartridgeType type_;

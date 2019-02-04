@@ -21,7 +21,8 @@ namespace mattboy::gameboy {
     void Gameboy::LoadCartridge(const std::vector<char>& data, const std::string& rom_file)
     {
       mmu_.LoadCartridge(data, rom_file);
-      Reset();
+      if (mmu_.GetCartridge()->IsValid())
+        Reset();
     }
 
     std::shared_ptr<mmu::Cartridge> Gameboy::GetCartridge()
