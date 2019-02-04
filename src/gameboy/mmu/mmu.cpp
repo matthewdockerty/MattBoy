@@ -21,7 +21,6 @@ namespace mattboy::gameboy::mmu {
 
   void MMU::LoadCartridge(const std::vector<char>& data, const std::string& rom_file)
   {
-    
     cart_ = std::make_shared<Cartridge>(data, rom_file);
   }
 
@@ -61,5 +60,9 @@ namespace mattboy::gameboy::mmu {
 
     // TODO: Assign values from cartridge...
   }
+
+
+
+  // TODO: What if battery?
 
 }

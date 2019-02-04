@@ -367,7 +367,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     renderer.join();
-    std::cout << "DONE" << std::endl;
 
     return msg.wParam;
 }

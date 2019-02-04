@@ -1,6 +1,8 @@
 #include "cartridge.hpp"
 
 #include <iostream>
+#include "cartridge_type.hpp"
+#include "mbc_none.hpp"
 
 namespace mattboy::gameboy::mmu {
 
@@ -31,31 +33,32 @@ namespace mattboy::gameboy::mmu {
     valid_ = static_cast<uint8_t>(data[CGB_FLAG_LOCATION]) != CGB_FLAG_VALUE; 
 
     // Cartridge type - specifies which MBC the cartridge uses and any additional hardware.
-    type_ = static_cast<CartridgeType>(static_cast<uint8_t>(data[CARTRIDGE_TYPE_LOCATION]));
+    CartridgeType type = static_cast<CartridgeType>(static_cast<uint8_t>(data[CARTRIDGE_TYPE_LOCATION]));
 
     // Size of the ROM in the cartridge (in bytes)
-    rom_size_ = (1024 * 32) << static_cast<int>(data[ROM_SIZE_LOCATION]);
+    int rom_size = (1024 * 32) << static_cast<int>(data[ROM_SIZE_LOCATION]);
 
+    int ram_size = 0;
     // Size of the RAM in the cartridge (in bytes)
     switch (data[RAM_SIZE_LOCATION])
     {
       case 0x00:
-        ram_size_ = 0;
+        // no RAM
         break;
       case 0x01:
-        ram_size_ = 2 * 1024;
+        ram_size = 2 * 1024;
         break;
       case 0x02:
-        ram_size_ = 8 * 1024;
+        ram_size = 8 * 1024;
         break; 
       case 0x03:
-        ram_size_ = 32 * 1024;
+        ram_size = 32 * 1024;
         break;
       case 0x04:
-        ram_size_ = 128 * 1024;
+        ram_size = 128 * 1024;
         break;
       case 0x05:
-        ram_size_ = 64 * 1024;
+        ram_size = 64 * 1024;
         break;
     }
 
@@ -65,6 +68,7 @@ namespace mattboy::gameboy::mmu {
     if (data[OLD_LICENSEE_CODE_LOCATION] == 0x33)
     {
       // TODO: Use new licensee code (GBC?)
+      licensee_code_ = 0;
     }
     else
     {
@@ -83,7 +87,19 @@ namespace mattboy::gameboy::mmu {
     if (checksum != static_cast<uint8_t>(data[HEADER_CHECKSUM_LOCATION]))
       valid_ = false;
 
-    std::cout << "VALID: " << valid_ << std::endl;
+    // Create memory bank controller
+    switch (type)
+    {
+      case ROM_ONLY:
+      case ROM_RAM:
+      case ROM_RAM_BATTERY:
+         mem_bank_controller_ = std::make_shared<MBCNone>(type, rom_size, ram_size, type == ROM_RAM_BATTERY, data);
+        break;
+      default:
+        std::cerr << "ROM type unimplemented" << std::endl;
+        valid_ = false;
+        break;
+    }
   }
 
   Cartridge::~Cartridge()
