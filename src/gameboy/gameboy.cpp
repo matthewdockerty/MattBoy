@@ -38,7 +38,12 @@ namespace mattboy::gameboy {
     void Gameboy::Cycle()
     {
       if (running_ && mmu_.GetCartridge() != nullptr && mmu_.GetCartridge()->IsValid())
-        cpu_.Cycle(mmu_);
+      {
+        int cpu_cycles = cpu_.Cycle(mmu_);
+        int gpu_cycles = cpu_cycles / 2;
+        
+        printf("CYCLES: %x\n", cycles);
+      }
     }
 
 } 

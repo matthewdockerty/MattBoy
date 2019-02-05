@@ -1,7 +1,7 @@
 #include "cpu.hpp"
 
 #include <iostream>
-#include <chrono>
+// #include <chrono>
 
 namespace mattboy::gameboy::cpu {
 
@@ -26,13 +26,13 @@ namespace mattboy::gameboy::cpu {
     pc_ = 0x100;
   }
 
-  void CPU::Cycle(mmu::MMU& mmu)
+  int CPU::Cycle(mmu::MMU& mmu)
   {
     int cycles = 0; // CPU cycle count used for instruction (measured in CLOCK CYCLES, with a 4.19MHz clockspeed)
-    const auto start_time = std::chrono::high_resolution_clock::now();
+    // const auto start_time = std::chrono::high_resolution_clock::now();
 
     uint8_t instruction = mmu.ReadByte(pc_);
-    //printf("instruction: %02x   pc: %04x\n", instruction, pc_);
+    printf("instruction: %02x   pc: %04x\n", instruction, pc_);
     pc_++;
 
     switch (instruction)
@@ -86,10 +86,13 @@ namespace mattboy::gameboy::cpu {
         break;
 
       case 0x32: // LD (HL-),A
+      {
         cycles += 8;
-        SetRegisterPair(REG_H, REG_L, ((uint16_t) REG_A) - 1);
+        uint16_t hl = GetRegisterPair(REG_H, REG_L);
+        mmu.WriteByte(hl, REG_A);
+        SetRegisterPair(REG_H, REG_L, hl - 1);
         break;
-
+      }
       case 0x3E: // LD A,#
         cycles += 8;
         SetRegister(REG_A, mmu.ReadByte(pc_++));
@@ -142,15 +145,15 @@ namespace mattboy::gameboy::cpu {
         break;
     }
 
-    // CPU cycle timing
-    auto elapsed_time = std::chrono::high_resolution_clock::now() - start_time;
-    long long nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count();
-    while (nanoseconds < cycles * NANOSECONDS_PER_CLOCK)
-    {
-      elapsed_time = std::chrono::high_resolution_clock::now() - start_time;
-      nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count();
-    }
-
+    // // CPU cycle timing
+    // auto elapsed_time = std::chrono::high_resolution_clock::now() - start_time;
+    // long long nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count();
+    // while (nanoseconds < cycles * NANOSECONDS_PER_CLOCK)
+    // {
+    //   elapsed_time = std::chrono::high_resolution_clock::now() - start_time;
+    //   nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed_time).count();
+    // }
+    return cycles;
   }
 
 }

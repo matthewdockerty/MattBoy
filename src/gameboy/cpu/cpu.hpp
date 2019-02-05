@@ -31,7 +31,7 @@ namespace mattboy::gameboy::cpu {
       ~CPU();
 
       void Reset();
-      void Cycle(mmu::MMU& mmu);
+      int Cycle(mmu::MMU& mmu);
 
     private:
       struct
@@ -53,6 +53,11 @@ namespace mattboy::gameboy::cpu {
       {
         first = (uint8_t) (value >> 8) & 0xFF;
         second = (uint8_t) value & 0xFF;
+      }
+
+      inline uint16_t GetRegisterPair(uint8_t& first, uint8_t& second)
+      {
+        return (uint16_t) ((first << 8) | second);
       }
 
       inline void SetFlag(int flag, bool value)
