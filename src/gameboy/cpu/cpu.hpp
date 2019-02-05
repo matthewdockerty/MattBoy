@@ -13,10 +13,14 @@
 #define REG_H registers_.h_
 #define REG_L registers_.l_
 
-#define REG_AF REG_A
-#define REG_BC REG_B
-#define REG_DE REG_D
-#define REG_HL REG_H
+#define FLAG_ZERO 7
+#define FLAG_ADD_SUB 6
+#define FLAG_HALF_CARRY 5
+#define FLAG_CARRY 4
+#define FLAG_UNUSED_3 3
+#define FLAG_UNUSED_2 2
+#define FLAG_UNUSED_1 1
+#define FLAG_UNUSED_0 0
 
 namespace mattboy::gameboy::cpu {
 
@@ -44,11 +48,24 @@ namespace mattboy::gameboy::cpu {
       static const int CPU_SPEED_CLOCKS_HZ = 4194304;
       static constexpr float NANOSECONDS_PER_CLOCK = 1000000000.0 / CPU_SPEED_CLOCKS_HZ; 
 
-      inline void RegisterSet(uint8_t& reg, uint8_t value) { reg = value; };
-      inline void RegisterSetPair(uint8_t& first, uint16_t value)
+      inline void SetRegister(uint8_t& reg, uint8_t value) { reg = value; };
+      inline void SetRegisterPair(uint8_t& first, uint8_t& second, uint16_t value)
       {
-        first = (value << 8) & 0xFF;
-        *((&first) + 1) =  value & 0xFF;
+        first = (uint8_t) (value >> 8) & 0xFF;
+        second = (uint8_t) value & 0xFF;
+      }
+
+      inline void SetFlag(int flag, bool value)
+      {
+        if (value)
+          REG_F |= 1UL << flag;
+        else
+          REG_F &= ~(1UL << flag);
+      }
+
+      inline bool CheckFlag(int flag)
+      {
+        return (REG_F >> flag) & 1U;
       }
   };
 
