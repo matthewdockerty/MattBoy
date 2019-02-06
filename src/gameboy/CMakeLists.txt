@@ -5,6 +5,7 @@ SET(gameboy_src_files
 
 ADD_SUBDIRECTORY(mmu)
 ADD_SUBDIRECTORY(cpu)
+ADD_SUBDIRECTORY(gpu)
 
 ADD_LIBRARY(gameboy ${gameboy_src_files})
-TARGET_LINK_LIBRARIES(gameboy mmu cpu)
+TARGET_LINK_LIBRARIES(gameboy mmu cpu gpu)

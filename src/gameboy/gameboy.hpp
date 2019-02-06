@@ -3,6 +3,7 @@
 
 #include "mmu/mmu.hpp"
 #include "cpu/cpu.hpp"
+#include "gpu/gpu.hpp"
 
 namespace mattboy::gameboy {
 
@@ -22,6 +23,8 @@ namespace mattboy::gameboy {
     private:
       mmu::MMU mmu_;
       cpu::CPU cpu_;
+      gpu::GPU gpu_;
+
       bool running_;
   };
 

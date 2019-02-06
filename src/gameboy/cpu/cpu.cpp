@@ -79,6 +79,7 @@ namespace mattboy::gameboy::cpu {
           pc_ ++;
         }
         break;
+
       case 0x21: // LD HL nn
         cycles += 12;
         SetRegisterPair(REG_H, REG_L, mmu.Read2Bytes(pc_));
@@ -91,8 +92,9 @@ namespace mattboy::gameboy::cpu {
         uint16_t hl = GetRegisterPair(REG_H, REG_L);
         mmu.WriteByte(hl, REG_A);
         SetRegisterPair(REG_H, REG_L, hl - 1);
-        break;
       }
+        break;
+
       case 0x3E: // LD A,#
         cycles += 8;
         SetRegister(REG_A, mmu.ReadByte(pc_++));

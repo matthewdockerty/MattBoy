@@ -16,6 +16,7 @@ namespace mattboy::gameboy {
     {
       mmu_.Reset();
       cpu_.Reset();
+      gpu_.Reset();
     }
 
     void Gameboy::LoadCartridge(const std::vector<char>& data, const std::string& rom_file)
@@ -42,7 +43,7 @@ namespace mattboy::gameboy {
         int cpu_cycles = cpu_.Cycle(mmu_);
         int gpu_cycles = cpu_cycles / 2;
         
-        printf("CYCLES: %x\n", cycles);
+        gpu_.Cycle(gpu_cycles, mmu_);
       }
     }
 
