@@ -31,6 +31,7 @@ namespace mattboy::gameboy::gpu {
           {
             mode_ = VBLANK;
             // TODO: Should redraw screen
+            printf("VBLANK!\n");
           }
           else
           {

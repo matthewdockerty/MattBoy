@@ -94,6 +94,7 @@ namespace mattboy::gameboy::mmu {
     return result;
   }
   
+  // TODO: Don't let anything be written to readonly memory!
   void MMU::WriteByte(uint16_t address, uint8_t value)
   {
     // ROM banks

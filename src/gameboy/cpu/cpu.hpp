@@ -72,6 +72,13 @@ namespace mattboy::gameboy::cpu {
       {
         return (REG_F >> flag) & 1U;
       }
+
+      inline void PushStack(mmu::MMU& mmu, uint16_t value)
+      {
+        mmu.WriteByte(--sp_, (value >> 8) & 0xFF);
+        mmu.WriteByte(--sp_, value & 0xFF);
+      }
+
   };
 
 }
