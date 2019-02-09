@@ -6,8 +6,9 @@
 
 namespace mattboy {
 
- bool ReadFile(const std::string& filename, std::vector<char>& result);
+	bool ReadFile(const std::wstring& filename, std::vector<char>& result);
 
 }
 
 #endif
+

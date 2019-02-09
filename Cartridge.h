@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <memory>
-#include "mbc.hpp"
+#include "MBC.h"
 
 #define NINTENDO_LOGO_SIZE 48
 #define NINTENDO_LOGO_LOCATION 0x104
@@ -23,32 +23,32 @@
 #define HEADER_CHECKSUM_START 0x134
 #define HEADER_CHECKSUM_END 0x14C
 
-namespace mattboy::gameboy::mmu {
+namespace mattboy {
 
-  class Cartridge
-  {
-    public:
-      Cartridge(const std::vector<char>& data, const std::string& rom_file);
-      ~Cartridge();
+	class Cartridge
+	{
+	public:
+		Cartridge(const std::vector<char>& data, const std::wstring& rom_file);
+		~Cartridge();
 
-      const std::string& GetTitle();
-      std::shared_ptr<MBC> GetMBC();
+		const std::string& GetTitle();
+		std::shared_ptr<MBC> GetMBC();
 
-      bool IsValid();
+		bool IsValid();
 
-    private:
+	private:
 
-      static const uint8_t nintendo_logo_[NINTENDO_LOGO_SIZE];
-      const std::string rom_file_;
-      bool valid_;
-      std::string title_;
-      bool japanese_dest_;
-      uint8_t licensee_code_;
-      uint8_t rom_version_;
+		static const uint8_t nintendo_logo_[NINTENDO_LOGO_SIZE];
+		const std::wstring rom_file_;
+		bool valid_;
+		std::string title_;
+		bool japanese_dest_;
+		uint8_t licensee_code_;
+		uint8_t rom_version_;
 
-      std::shared_ptr<MBC> mem_bank_controller_;
+		std::shared_ptr<MBC> mem_bank_controller_;
 
-  };
+	};
 
 }
 
