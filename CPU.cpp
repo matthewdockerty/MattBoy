@@ -82,7 +82,7 @@ namespace mattboy {
 			SetFlag(FLAG_HALF_CARRY, (REG_C & 0x0F) == 0x0F);
 			break;
 
-		case 0x0e: // LD C n
+		case 0x0e: // LD C,n
 			cycles += 8;
 			SetRegister(REG_C, mmu.ReadByte(pc_++));
 			break;
@@ -90,6 +90,11 @@ namespace mattboy {
 		case 0x12: // LD (DE),A
 			cycles += 8;
 			mmu.WriteByte(GetRegisterPair(REG_D, REG_E), REG_A);
+			break;
+
+		case 0x16: // LD D,n
+			cycles += 8;
+			REG_D = mmu.ReadByte(pc_++);
 			break;
 
 		case 0x20: // JR NZ,n
@@ -120,6 +125,13 @@ namespace mattboy {
 		}
 		break;
 
+		case 0x2F: // CPL
+			cycles += 4;
+			REG_A = ~REG_A;
+			SetFlag(FLAG_ADD_SUB, true);
+			SetFlag(FLAG_HALF_CARRY, true);
+			break;
+
 		case 0x31: // LD SP,nn
 			cycles += 12;
 			sp_ = mmu.Read2Bytes(pc_);
@@ -145,14 +157,70 @@ namespace mattboy {
 			SetRegister(REG_A, mmu.ReadByte(pc_++));
 			break;
 
+		case 0x47: // LD B,A
+			cycles += 4;
+			REG_B = REG_A;
+			break;
+
+		case 0x4F: // LD C,A
+			cycles += 4;
+			REG_C = REG_A;
+			break;
+
+		case 0x5F: // LD E,A
+			cycles += 4;
+			REG_E = REG_A;
+			break;
+
 		case 0x78: // LD A,B
 			cycles += 4;
 			SetRegister(REG_A, REG_B);
 			break;
 
+		case 0x79: // LD A,C
+			cycles += 4;
+			REG_A = REG_C;
+			break;
+
+		case 0x87: // ADD A,A
+			cycles += 4;
+			REG_A += REG_A;
+			SetFlag(FLAG_ZERO, REG_A == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, (REG_A & 0x0F) + (REG_A & 0x0F) > 0x0F);
+			SetFlag(FLAG_CARRY, (((REG_A & 0x0FF) + (REG_A & 0x0FF)) & 0x100) != 0);
+			break;
+
+		case 0xA1: // AND C
+			cycles += 4;
+			REG_A = REG_A & REG_C;
+			SetFlag(FLAG_ZERO, REG_A == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, true);
+			SetFlag(FLAG_CARRY, false);
+			break;
+
+		case 0xA9: // XOR C
+			cycles += 4;
+			REG_A = REG_A ^ REG_C;
+			SetFlag(FLAG_ZERO, REG_A == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, false);
+			SetFlag(FLAG_CARRY, false);
+			break;
+
 		case 0xAF: // XOR A
 			cycles += 4;
 			REG_A ^= REG_A;
+			SetFlag(FLAG_ZERO, REG_A == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, false);
+			SetFlag(FLAG_CARRY, false);
+			break;
+
+		case 0xB0: // OR B
+			cycles += 4;
+			SetRegister(REG_A, REG_A | REG_B);
 			SetFlag(FLAG_ZERO, REG_A == 0);
 			SetFlag(FLAG_ADD_SUB, false);
 			SetFlag(FLAG_HALF_CARRY, false);
@@ -173,6 +241,34 @@ namespace mattboy {
 			pc_ = mmu.Read2Bytes(pc_);
 			break;
 
+		case 0xC9: // RET 
+		{
+			cycles += 16;
+			pc_ = mmu.Read2Bytes(sp_);
+			sp_ += 2;
+		}
+		break;
+
+		case 0xCB: // PREFIX CB
+			cycles += 4;
+			instruction = mmu.ReadByte(pc_++);
+
+			switch (instruction)
+			{
+			case 0x37: // SWAP A
+				cycles += 8;
+				REG_A = (REG_A << 4) | (REG_A >> 4);
+				SetFlag(FLAG_ZERO, REG_A == 0);
+				SetFlag(FLAG_ADD_SUB, false);
+				SetFlag(FLAG_HALF_CARRY, false);
+				SetFlag(FLAG_CARRY, false);
+				break;
+
+			default:
+				printf("unimplemented opcode: 0xCB 0x%02x   pc: %x\n", instruction, pc_ - 1);
+			}
+			break;
+
 		case 0xCD: // CALL nn
 		{
 			cycles += 24;
@@ -184,13 +280,30 @@ namespace mattboy {
 		}
 		break;
 
-		case 0xC9: // RET 
-		{
-			cycles += 16;
-			pc_ = mmu.Read2Bytes(sp_);
+		case 0xE0: // LD ($FF00+n),A
+			cycles += 12;
+			mmu.WriteByte((uint8_t)0xFF00 + mmu.ReadByte(pc_++), REG_A);
+			break;
+
+		case 0xE1:
+			cycles += 12;
+			SetRegisterPair(REG_H, REG_L, mmu.Read2Bytes(sp_));
 			sp_ += 2;
-		}
-		break;
+			break;
+
+		case 0xE2: // LD (C),A
+			cycles += 8;
+			mmu.WriteByte(0xFF00 + REG_C, REG_A);
+			break;
+
+		case 0xE6: // AND #
+			cycles += 8;
+			REG_A = REG_A & mmu.ReadByte(pc_++);
+			SetFlag(FLAG_ZERO, REG_A == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, true);
+			SetFlag(FLAG_CARRY, false);
+			break;
 
 		case 0xEA: // LD (nn),A
 			cycles += 16;
@@ -198,14 +311,10 @@ namespace mattboy {
 			pc_ += 2;
 			break;
 
-		case 0xE0: // LD ($FF00+n),A
-			cycles += 12;
-			mmu.WriteByte((uint8_t)0xFF00 + mmu.ReadByte(pc_++), REG_A);
-			break;
-
-		case 0xE2: // LD (C),A
-			cycles += 8;
-			mmu.WriteByte(0xFF00 + REG_C, REG_A);
+		case 0xEF: // RST 28H
+			cycles += 16;
+			PushStack(mmu, pc_);
+			pc_ = 0x28;
 			break;
 
 		case 0xF0: // LD A,($FF00+n)
