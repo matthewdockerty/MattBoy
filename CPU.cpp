@@ -30,7 +30,7 @@ namespace mattboy {
 		int cycles = 0; // CPU cycle count used for instruction (measured in CLOCK CYCLES, with a 4.19MHz clockspeed)
 
 		uint8_t instruction = mmu.ReadByte(pc_);
-		// printf("instruction: %02x   pc: %04x\n", instruction, pc_);
+		//printf("instruction: %02x   pc: %04x\n", instruction, pc_);
 		pc_++;
 
 		switch (instruction)
@@ -43,6 +43,11 @@ namespace mattboy {
 			cycles += 12;
 			SetRegisterPair(REG_B, REG_C, mmu.Read2Bytes(pc_));
 			pc_ += 2;
+			break;
+
+		case 0x03: // INC BC
+			cycles += 8;
+			SetRegisterPair(REG_B, REG_C, GetRegisterPair(REG_B, REG_C) + 1);
 			break;
 
 		case 0x05: // DEC B
@@ -92,10 +97,28 @@ namespace mattboy {
 			mmu.WriteByte(GetRegisterPair(REG_D, REG_E), REG_A);
 			break;
 
+		case 0x13: // INC DE
+			cycles += 8;
+			SetRegisterPair(REG_D, REG_E, GetRegisterPair(REG_D, REG_E) + 1);
+			break;
+
 		case 0x16: // LD D,n
 			cycles += 8;
 			REG_D = mmu.ReadByte(pc_++);
 			break;
+
+		case 0x19: // ADD HL,DE
+		{
+			cycles += 8;
+			uint16_t hl = GetRegisterPair(REG_H, REG_L);
+			uint16_t de = GetRegisterPair(REG_D, REG_E);
+			int result = hl + de;
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_CARRY, (result & 0x10000) != 0);
+			SetFlag(FLAG_HALF_CARRY, ((hl ^ de ^ (result & 0xFFFF)) & 0x1000) != 0);
+			SetRegisterPair(REG_H, REG_L, static_cast<uint16_t>(result));
+		}
+		break;
 
 		case 0x20: // JR NZ,n
 			if (!CheckFlag(FLAG_ZERO))
@@ -114,6 +137,11 @@ namespace mattboy {
 			cycles += 12;
 			SetRegisterPair(REG_H, REG_L, mmu.Read2Bytes(pc_));
 			pc_ += 2;
+			break;
+
+		case 0x23: // INC HL
+			cycles += 8;
+			SetRegisterPair(REG_H, REG_L, GetRegisterPair(REG_H, REG_L) + 1);
 			break;
 
 		case 0x2A: // LD A,(HL+)
@@ -147,6 +175,11 @@ namespace mattboy {
 		}
 		break;
 
+		case 0x33: // INC SP
+			cycles += 8;
+			sp_++;
+			break;
+
 		case 0x36: // LD (HL), n
 			cycles += 12;
 			mmu.WriteByte(GetRegisterPair(REG_H, REG_L), mmu.ReadByte(pc_++));
@@ -165,6 +198,16 @@ namespace mattboy {
 		case 0x4F: // LD C,A
 			cycles += 4;
 			REG_C = REG_A;
+			break;
+
+		case 0x56: // LD D,(HL)
+			cycles += 8;
+			REG_D = mmu.ReadByte(GetRegisterPair(REG_H, REG_L));
+			break;
+
+		case 0x5E: // LD E,(HL)
+			cycles += 8;
+			REG_E = mmu.ReadByte(GetRegisterPair(REG_H, REG_L));
 			break;
 
 		case 0x5F: // LD E,A
@@ -194,6 +237,15 @@ namespace mattboy {
 		case 0xA1: // AND C
 			cycles += 4;
 			REG_A = REG_A & REG_C;
+			SetFlag(FLAG_ZERO, REG_A == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, true);
+			SetFlag(FLAG_CARRY, false);
+			break;
+
+		case 0xA7: // AND A
+			cycles += 4;
+			REG_A &= REG_A;
 			SetFlag(FLAG_ZERO, REG_A == 0);
 			SetFlag(FLAG_ADD_SUB, false);
 			SetFlag(FLAG_HALF_CARRY, true);
@@ -236,6 +288,19 @@ namespace mattboy {
 			SetFlag(FLAG_CARRY, false);
 			break;
 
+		case 0xC0: // RET NZ
+			if (CheckFlag(FLAG_ZERO))
+			{
+				cycles += 8;
+			}
+			else
+			{
+				cycles += 20;
+				pc_ = mmu.Read2Bytes(sp_);
+				sp_ += 2;
+			}
+			break;
+
 		case 0xC3: // Jump to a memory address
 			cycles += 16;
 			pc_ = mmu.Read2Bytes(pc_);
@@ -265,7 +330,20 @@ namespace mattboy {
 				break;
 
 			default:
-				printf("unimplemented opcode: 0xCB 0x%02x   pc: %x\n", instruction, pc_ - 1);
+				printf("unimplemented opcode: 0xCB 0x%02x   pc: %x\n", instruction, pc_ - 2);
+			}
+			break;
+
+		case 0xCA: // JP Z,nn
+			if (CheckFlag(FLAG_ZERO))
+			{
+				cycles += 16;
+				pc_ = mmu.Read2Bytes(pc_);
+			}
+			else
+			{
+				cycles += 12;
+				pc_ += 2;
 			}
 			break;
 
@@ -280,12 +358,17 @@ namespace mattboy {
 		}
 		break;
 
+		case 0xD5: // PUSH DE
+			cycles += 16;
+			PushStack(mmu, GetRegisterPair(REG_D, REG_E));
+			break;
+
 		case 0xE0: // LD ($FF00+n),A
 			cycles += 12;
 			mmu.WriteByte((uint8_t)0xFF00 + mmu.ReadByte(pc_++), REG_A);
 			break;
 
-		case 0xE1:
+		case 0xE1: // POP HL
 			cycles += 12;
 			SetRegisterPair(REG_H, REG_L, mmu.Read2Bytes(sp_));
 			sp_ += 2;
@@ -303,6 +386,11 @@ namespace mattboy {
 			SetFlag(FLAG_ADD_SUB, false);
 			SetFlag(FLAG_HALF_CARRY, true);
 			SetFlag(FLAG_CARRY, false);
+			break;
+
+		case 0xE9: // JP (HL)
+			cycles += 4;
+			pc_ = GetRegisterPair(REG_H, REG_L);
 			break;
 
 		case 0xEA: // LD (nn),A
