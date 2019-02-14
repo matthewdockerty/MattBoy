@@ -4,6 +4,7 @@
 #include "MMU.h"
 #include "CPU.h"
 #include "GPU.h"
+#include "InterruptHandler.h"
 
 namespace mattboy {
 
@@ -24,6 +25,7 @@ namespace mattboy {
 		MMU mmu_;
 		CPU cpu_;
 		GPU gpu_;
+		InterruptHandler interrupt_handler_;
 
 		bool running_;
 	};
