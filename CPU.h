@@ -31,7 +31,8 @@ namespace mattboy {
 		~CPU();
 
 		void Reset();
-		int Cycle(MMU& mmu);
+		int Cycle(MMU& mmu, InterruptHandler& interrupt_handler);
+		void HandleInterrupt(MMU& mmu, uint16_t handler_address);
 
 		static const int CPU_SPEED_CLOCKS_HZ = 4194304;
 		static constexpr float NANOSECONDS_PER_CLOCK = 1000000000.0 / CPU_SPEED_CLOCKS_HZ;
@@ -46,6 +47,9 @@ namespace mattboy {
 
 		uint16_t sp_;
 		uint16_t pc_;
+
+		int interrupt_wait_cycles_;
+		bool pending_disable_interrupts_;
 
 		inline void SetRegister(uint8_t& reg, uint8_t value) { reg = value; };
 		inline void SetRegisterPair(uint8_t& first, uint8_t& second, uint16_t value)

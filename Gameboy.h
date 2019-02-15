@@ -22,10 +22,10 @@ namespace mattboy {
 		void SetRunning(bool value);
 
 	private:
+		InterruptHandler interrupt_handler_;
 		MMU mmu_;
 		CPU cpu_;
 		GPU gpu_;
-		InterruptHandler interrupt_handler_;
 
 		bool running_;
 	};

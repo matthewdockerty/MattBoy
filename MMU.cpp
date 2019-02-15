@@ -4,7 +4,7 @@
 
 namespace mattboy{
 
-	MMU::MMU() : cart_(nullptr), memory_{ 0 }, current_rom_bank_(1), current_ram_bank_(0)
+	MMU::MMU(InterruptHandler& interrupt_handler) : cart_(nullptr), memory_{ 0 }, current_rom_bank_(1), current_ram_bank_(0), interrupt_handler_(interrupt_handler)
 	{
 
 	}
@@ -56,7 +56,6 @@ namespace mattboy{
 		WriteByte(0xFF49, 0xFF);
 		WriteByte(0xFF4A, 0x00);
 		WriteByte(0xFF4B, 0x00);
-		WriteByte(0xFFFF, 0x00);
 	}
 
 	uint8_t MMU::ReadByte(uint16_t address)
@@ -79,7 +78,15 @@ namespace mattboy{
 
 		// Remainder of memory
 		if (address <= 0xFFFF)
+		{
+			if (address == 0xFFFF)
+				return interrupt_handler_.GetIE();
+
+			if (address == 0xFF0F)
+				return interrupt_handler_.GetIF();
+
 			return memory_[address - 0xC000];
+		}
 
 		return 0;
 	}
@@ -115,14 +122,25 @@ namespace mattboy{
 		// Remaining memory
 		else if (address <= 0xFFFF)
 		{
-			memory_[address - 0xC000] = value;
+			if (address == 0xFFFF)
+			{
+				interrupt_handler_.SetIE(value);
+			}
+			else if (address == 0xFF0F)
+			{
+				interrupt_handler_.SetIF(value);
+			}
+			else
+			{
+				memory_[address - 0xC000] = value;
 
-			// Echo RAM
-			if (address >= 0xC000 && address <= 0xDDFF)
-				memory_[address - 0xC000 + 0x2000] = value;
+				// Echo RAM
+				if (address >= 0xC000 && address <= 0xDDFF)
+					memory_[address - 0xC000 + 0x2000] = value;
 
-			if (address >= 0xE000 && address <= 0xFDFF)
-				memory_[address - 0xC000 - 0x2000] = value;
+				if (address >= 0xE000 && address <= 0xFDFF)
+					memory_[address - 0xC000 - 0x2000] = value;
+			}
 		}
 
 	}

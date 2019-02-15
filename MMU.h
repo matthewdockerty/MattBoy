@@ -5,12 +5,14 @@
 #include <cstdint>
 #include <memory>
 
+#include "InterruptHandler.h"
+
 namespace mattboy {
 
 	class MMU
 	{
 	public:
-		MMU();
+		MMU(InterruptHandler& interrupt_handler);
 		~MMU();
 
 		std::shared_ptr<Cartridge> GetCartridge();
@@ -30,6 +32,8 @@ namespace mattboy {
 
 		int current_rom_bank_;
 		int current_ram_bank_;
+
+		InterruptHandler& interrupt_handler_;
 
 		// rom_0_[0x4000];
 		// rom_n_[0x4000];

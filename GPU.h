@@ -12,7 +12,7 @@ namespace mattboy {
 		GPU();
 		~GPU();
 
-		void Cycle(int cycles, MMU& mmu);
+		void Cycle(int cycles, MMU& mmu, InterruptHandler& interrupt_handler);
 		void Reset();
 
 	private:

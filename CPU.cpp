@@ -6,7 +6,7 @@ namespace mattboy {
 
 	CPU::CPU()
 	{
-
+		
 	}
 
 	CPU::~CPU()
@@ -23,14 +23,36 @@ namespace mattboy {
 		SetRegisterPair(REG_H, REG_L, 0x014D);
 		sp_ = 0xFFFE;
 		pc_ = 0x100;
+		interrupt_wait_cycles_ = 0;
+		pending_disable_interrupts_ = false;
 	}
 
-	int CPU::Cycle(MMU& mmu)
+	void CPU::HandleInterrupt(MMU& mmu, uint16_t handler_address)
 	{
-		int cycles = 0; // CPU cycle count used for instruction (measured in CLOCK CYCLES, with a 4.19MHz clockspeed)
+		printf("INTERRUPT HANDLER!\n");
+		// TODO: wait 2 cycles...
+		interrupt_wait_cycles_ += 8; // Wait 2 machine cycles when the interrupt service routine is executed.
+		
+		PushStack(mmu, pc_);
+		interrupt_wait_cycles_ += 8;
+		
+		pc_ = handler_address;
+		interrupt_wait_cycles_ += 4;
+	}
+
+	int CPU::Cycle(MMU& mmu, InterruptHandler& interrupt_handler)
+	{
+		int cycles = interrupt_wait_cycles_; // CPU cycle count used for instruction (measured in CLOCK CYCLES, with a 4.19MHz clockspeed)
+		interrupt_wait_cycles_ = 0;
+
+		if (pending_disable_interrupts_)
+		{
+			pending_disable_interrupts_ = false;
+			interrupt_handler.SetMasterEnable(false);
+		}
 
 		uint8_t instruction = mmu.ReadByte(pc_);
-		//printf("instruction: %02x   pc: %04x\n", instruction, pc_);
+		printf("instruction: %02x   pc: %04x\n", instruction, pc_);
 		pc_++;
 
 		switch (instruction)
@@ -331,7 +353,9 @@ namespace mattboy {
 
 			default:
 				printf("unimplemented opcode: 0xCB 0x%02x   pc: %x\n", instruction, pc_ - 2);
+				break;
 			}
+
 			break;
 
 		case 0xCA: // JP Z,nn
@@ -365,7 +389,8 @@ namespace mattboy {
 
 		case 0xE0: // LD ($FF00+n),A
 			cycles += 12;
-			mmu.WriteByte((uint8_t)0xFF00 + mmu.ReadByte(pc_++), REG_A);
+			printf("!!!%0x4\n", 0xFF00 + mmu.ReadByte(pc_++));
+			mmu.WriteByte((uint16_t)0xFF00 + mmu.ReadByte(pc_++), REG_A);
 			break;
 
 		case 0xE1: // POP HL
@@ -412,12 +437,12 @@ namespace mattboy {
 
 		case 0xF3: // DI
 			cycles += 4;
-			std::cout << "TODO: Disable interrupts" << std::endl;
+			pending_disable_interrupts_ = true;
 			break;
 
 		case 0xFB: // EI
 			cycles += 4;
-			std::cout << "TODO: Enable interrupts" << std::endl;
+			interrupt_handler.SetMasterEnable(true);
 			break;
 
 		case 0xFE: // CP n
@@ -436,6 +461,13 @@ namespace mattboy {
 			printf("unimplemented opcode: 0x%02x   pc: %x\n", instruction, pc_ - 1);
 			break;
 		}
+
+
+		printf("A: %02x   F: %02x\n", REG_A, REG_F);
+		printf("B: %02x   C: %02x\n", REG_B, REG_C);
+		printf("D: %02x   E: %02x\n", REG_D, REG_E);
+		printf("H: %02x   L: %02x\n", REG_H, REG_L);
+		printf("LY: %02x\n", mmu.ReadByte(0xFF44));
 
 		return cycles;
 	}

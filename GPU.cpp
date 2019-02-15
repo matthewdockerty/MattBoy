@@ -15,7 +15,7 @@ namespace mattboy {
 	}
 
 	// TODO: Write values to memory & change MMU to only be able to access memory at the correct times.
-	void GPU::Cycle(int cycles, MMU& mmu)
+	void GPU::Cycle(int cycles, MMU& mmu, InterruptHandler& interrupt_handler)
 	{
 		current_cycles_ += cycles;
 
@@ -32,6 +32,7 @@ namespace mattboy {
 					mode_ = VBLANK;
 					// TODO: Should redraw screen
 					printf("VBLANK!\n");
+					interrupt_handler.RequestInterrupt(InterruptHandler::VBLANK);
 				}
 				else
 				{

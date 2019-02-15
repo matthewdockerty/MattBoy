@@ -1,7 +1,6 @@
 #include "InterruptHandler.h"
 
 
-// TODO: Add to MMU
 InterruptHandler::InterruptHandler()
 {
 	Reset();
@@ -54,3 +53,22 @@ void InterruptHandler::DismissInterrupt(uint8_t interrupt_bit)
 	interrupt_flag_ &= ~(1 << interrupt_bit);
 }
 
+uint8_t InterruptHandler::GetIE()
+{
+	return interrupt_enable_;
+}
+
+uint8_t InterruptHandler::GetIF()
+{
+	return interrupt_flag_;
+}
+
+void InterruptHandler::SetIE(uint8_t value)
+{
+	interrupt_enable_ = value;
+}
+
+void InterruptHandler::SetIF(uint8_t value)
+{
+	interrupt_flag_ = value;
+}
