@@ -46,7 +46,9 @@ namespace mattboy {
 			int cycles = cpu_.Cycle(mmu_, interrupt_handler_);
 			gpu_.Cycle(cycles * 2, mmu_, interrupt_handler_);
 
+#ifdef PRINT_STATE
 			printf("IME: %02x   IE: %02x   IF: %02x\n\n", interrupt_handler_.IsMasterEnabled(), interrupt_handler_.GetIE(), interrupt_handler_.GetIF());
+#endif
 
 			if (interrupt_handler_.IsMasterEnabled())
 			{

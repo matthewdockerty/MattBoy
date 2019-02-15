@@ -22,6 +22,10 @@
 #define FLAG_UNUSED_1 1
 #define FLAG_UNUSED_0 0
 
+
+#define PRINT_STATE
+
+
 namespace mattboy {
 	
 	class CPU
@@ -49,7 +53,7 @@ namespace mattboy {
 		uint16_t pc_;
 
 		int interrupt_wait_cycles_;
-		bool pending_disable_interrupts_;
+		bool pending_disable_interrupts_, pending_enable_interrupts_;
 
 		inline void SetRegister(uint8_t& reg, uint8_t value) { reg = value; };
 		inline void SetRegisterPair(uint8_t& first, uint8_t& second, uint16_t value)

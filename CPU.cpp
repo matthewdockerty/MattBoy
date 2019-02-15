@@ -25,6 +25,7 @@ namespace mattboy {
 		pc_ = 0x100;
 		interrupt_wait_cycles_ = 0;
 		pending_disable_interrupts_ = false;
+		pending_enable_interrupts_ = false;
 	}
 
 	void CPU::HandleInterrupt(MMU& mmu, uint16_t handler_address)
@@ -51,8 +52,16 @@ namespace mattboy {
 			interrupt_handler.SetMasterEnable(false);
 		}
 
+		if (pending_enable_interrupts_)
+		{
+			pending_enable_interrupts_ = false;
+			interrupt_handler.SetMasterEnable(true);
+		}
+
 		uint8_t instruction = mmu.ReadByte(pc_);
+#ifdef PRINT_STATE
 		printf("instruction: %02x   pc: %04x\n", instruction, pc_);
+#endif
 		pc_++;
 
 		switch (instruction)
@@ -389,7 +398,6 @@ namespace mattboy {
 
 		case 0xE0: // LD ($FF00+n),A
 			cycles += 12;
-			printf("!!!%0x4\n", 0xFF00 + mmu.ReadByte(pc_++));
 			mmu.WriteByte((uint16_t)0xFF00 + mmu.ReadByte(pc_++), REG_A);
 			break;
 
@@ -442,7 +450,7 @@ namespace mattboy {
 
 		case 0xFB: // EI
 			cycles += 4;
-			interrupt_handler.SetMasterEnable(true);
+			pending_enable_interrupts_ = true;
 			break;
 
 		case 0xFE: // CP n
@@ -463,11 +471,13 @@ namespace mattboy {
 		}
 
 
+#ifdef PRINT_STATE
 		printf("A: %02x   F: %02x\n", REG_A, REG_F);
 		printf("B: %02x   C: %02x\n", REG_B, REG_C);
 		printf("D: %02x   E: %02x\n", REG_D, REG_E);
 		printf("H: %02x   L: %02x\n", REG_H, REG_L);
 		printf("LY: %02x\n", mmu.ReadByte(0xFF44));
+#endif
 
 		return cycles;
 	}
