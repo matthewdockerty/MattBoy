@@ -24,7 +24,6 @@ namespace mattboy {
 		case HBLANK:
 			if (current_cycles_ >= 204)
 			{
-				current_cycles_ -= 204;
 				line_++;
 
 				if (line_ > 143)
@@ -58,7 +57,6 @@ namespace mattboy {
 		case OAM:
 			if (current_cycles_ >= 80)
 			{
-				current_cycles_ -= 80;
 				mode_ = VRAM;
 			}
 			break;
@@ -66,14 +64,13 @@ namespace mattboy {
 		case VRAM:
 			if (current_cycles_ >= 172)
 			{
-				current_cycles_ -= 172;
 				mode_ = HBLANK;
 
 				// TODO: Render line
 			}
 			break;
 		}
-		mmu.WriteByte(0xFF44, static_cast<uint8_t>(line_));
+		mmu.WriteByte(0xFF44, line_);
 	}
 
 	void GPU::Reset()
