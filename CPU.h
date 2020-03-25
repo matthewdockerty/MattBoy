@@ -23,7 +23,7 @@
 #define FLAG_UNUSED_0 0
 
 
-#define PRINT_STATE
+//#define PRINT_STATE
 
 
 namespace mattboy {

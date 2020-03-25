@@ -30,8 +30,10 @@ namespace mattboy {
 
 	uint8_t* MBCNone::GetRAMBankN(int n)
 	{
-		if (type_ == ROM_RAM || type_ == ROM_RAM_BATTERY)
+		if (type_ == ROM_RAM || type_ == ROM_RAM_BATTERY || type_ == ROM_ONLY)
 			return ram_;
+
+		printf("%x\n", type_);
 
 		return nullptr;
 	}

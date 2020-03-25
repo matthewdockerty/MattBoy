@@ -145,4 +145,9 @@ namespace mattboy{
 
 	}
 
+
+	uint8_t* MMU::GetVideoRam() {
+		return ram_video_;
+	}
+
 }

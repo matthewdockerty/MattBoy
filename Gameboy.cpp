@@ -19,7 +19,6 @@ namespace mattboy {
 		cpu_.Reset();
 		gpu_.Reset();
 		interrupt_handler_.Reset();
-		// TODO: Reload Cart from file!
 	}
 
 	void Gameboy::LoadCartridge(const std::vector<char>& data, const std::wstring& rom_file)
@@ -27,6 +26,8 @@ namespace mattboy {
 		mmu_.LoadCartridge(data, rom_file);
 		if (mmu_.GetCartridge()->IsValid())
 			Reset();
+
+		// TODO: Invalid cart
 	}
 
 	std::shared_ptr<Cartridge> Gameboy::GetCartridge()
