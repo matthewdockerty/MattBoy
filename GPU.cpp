@@ -65,7 +65,6 @@ namespace mattboy {
 			if (current_cycles_ >= 172)
 			{
 				mode_ = HBLANK;
-
 				// TODO: Render line
 			}
 			break;

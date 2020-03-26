@@ -68,7 +68,7 @@ namespace mattboy {
 			for (int i = 0; i < 0x2000; i++) {
 				printf("%x ", vmem[i]);
 			}
-			system("pause");
+			//system("pause");
 		}
 
 #ifdef PRINT_STATE
