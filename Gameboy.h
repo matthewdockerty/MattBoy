@@ -21,6 +21,8 @@ namespace mattboy {
 		int Cycle();
 		void SetRunning(bool value);
 
+		int *GetScreen();
+
 	private:
 		InterruptHandler interrupt_handler_;
 		MMU mmu_;

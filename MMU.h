@@ -23,7 +23,7 @@ namespace mattboy {
 		uint16_t Read2Bytes(uint16_t address);
 		void WriteByte(uint16_t address, uint8_t value);
 
-		uint8_t * GetVideoRam();
+		const uint8_t * GetVideoRam();
 
 	private:
 		std::shared_ptr<Cartridge> cart_;

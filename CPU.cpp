@@ -58,19 +58,19 @@ namespace mattboy {
 		}
 
 		uint8_t instruction = mmu.ReadByte(pc_);
-
+		/*
 		static bool debug = false;
 		//if (pc_ == 0x2c2)
 			//debug = true;
-
+		
 		if (pc_ == 0x282a) {
-			uint8_t* vmem = mmu.GetVideoRam();
+			const uint8_t* vmem = mmu.GetVideoRam();
 			for (int i = 0; i < 0x2000; i++) {
 				printf("%x ", vmem[i]);
 			}
 			//system("pause");
 		}
-
+		
 #ifdef PRINT_STATE
 		printf("A: %02x   F: %02x\n", REG_A, REG_F);
 		printf("B: %02x   C: %02x\n", REG_B, REG_C);
@@ -82,7 +82,7 @@ namespace mattboy {
 		if (debug)
 			system("pause");
 #endif
-
+*/
 		pc_++;
 
 		switch (instruction)

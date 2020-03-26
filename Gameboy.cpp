@@ -55,7 +55,7 @@ namespace mattboy {
 			{
 				if (interrupt_handler_.IsInterruptEnabled(InterruptHandler::VBLANK) && interrupt_handler_.IsInterruptRequested(InterruptHandler::VBLANK))
 				{
-					printf("VBLANK INTERRUPT!!\n");
+					//printf("VBLANK INTERRUPT!!\n");
 					interrupt_handler_.SetMasterEnable(false);
 					interrupt_handler_.DismissInterrupt(InterruptHandler::VBLANK);
 					cpu_.HandleInterrupt(mmu_, InterruptHandler::VBLANK_HANDLER);
@@ -90,6 +90,11 @@ namespace mattboy {
 		}
 
 		return 0;
+	}
+
+	int *Gameboy::GetScreen()
+	{
+		return gpu_.GetScreen();
 	}
 
 }
