@@ -6,9 +6,7 @@ namespace mattboy {
 
 	GPU::GPU() : mode_(HBLANK), current_cycles_(0), line_(0)
 	{
-		for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
-			screen_[i] = 0x9bbc0f;
-
+		Reset();
 	}
 
 	GPU::~GPU()
@@ -71,6 +69,7 @@ namespace mattboy {
 
 				const uint8_t *vram = mmu.GetVideoRam();
 				
+				if (line_ == 140)
 				DrawTilesetToScreen(mmu);
 			}
 			break;
@@ -109,10 +108,10 @@ namespace mattboy {
 
 	void GPU::DrawTilesetToScreen(MMU& mmu)
 	{
-		uint8_t tiledata[8][8];
 
-		for (int offset = 0; offset < 255; offset++) {
-			ExtractTileDataFromVRAM(offset, tiledata, mmu.GetVideoRam());
+		for (int offset = 0; offset < MMU::TILE_COUNT; offset++) {
+			//ExtractTileDataFromVRAM(offset, tiledata, mmu.GetVideoRam());
+			auto tiledata = mmu.GetTileById(offset).pixelsPalette_;
 			for (int i = 0; i < 8; i++) {
 				for (int j = 0; j < 8; j++) {
 					screen_[(8 * offset) + (SCREEN_WIDTH * j) + (SCREEN_WIDTH * 8 * (offset / 20)) + i] = GetColorFromPalette(mmu, tiledata[j][i]);
@@ -124,6 +123,9 @@ namespace mattboy {
 	void GPU::Reset()
 	{
 		std::cout << "TODO: GPU Reset!" << std::endl;
+
+		for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
+			screen_[i] = 0x9bbc0f;
 	}
 
 	int * GPU::GetScreen()

@@ -26,6 +26,7 @@ namespace mattboy{
 
 	void MMU::Reset()
 	{
+		memset(ram_video_, 0, sizeof(ram_video_));
 		WriteByte(0xFF05, 0x00);
 		WriteByte(0xFF06, 0x00);
 		WriteByte(0xFF07, 0x00);
@@ -112,6 +113,25 @@ namespace mattboy{
 		// Video RAM
 		else if (address < 0xA000)
 		{
+
+			// Tile data
+			if (address >= 0x8000 && address <= 0x97FF)
+			{
+				// Store a cache of tiles for efficient access
+				int tileNum = (address - 0x8000) / 16;
+				if (tileNum < TILE_COUNT)
+				{
+					int tileLine = (address % 16) / 2;
+					
+					// value is least significant bits of line
+					if (address % 2 == 0)
+						tiles_[tileNum].SetLSBitsForLine(tileLine, value);
+					else
+						tiles_[tileNum].SetMSBitsForLine(tileLine, value);
+
+				}
+			}
+
 			ram_video_[address - 0x8000] = value;
 		}
 		// External RAM banks TODO: Handle saving battery backed RAM to file!
@@ -145,6 +165,10 @@ namespace mattboy{
 
 	}
 
+	const Tile& MMU::GetTileById(int tileId)
+	{
+		return tiles_[tileId];
+	}
 
 	const uint8_t * MMU::GetVideoRam() {
 		return ram_video_;

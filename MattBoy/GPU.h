@@ -1,8 +1,8 @@
 #ifndef GPU_H_
 #define GPU_H_
 
-#include "MMU.h"
 #include "GPUMode.h"
+#include "MMU.h"
 
 #define SCREEN_WIDTH 160
 #define SCREEN_HEIGHT 144

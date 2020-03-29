@@ -848,6 +848,15 @@ namespace mattboy {
 		}
 		break;
 
+		case 0xC7: // RST 0
+		{
+			cycles += 16;
+
+			PushStack(mmu, pc_);
+			pc_ = 0;
+		}
+		break;
+
 		case 0xC8: // RET Z
 			if (CheckFlag(FLAG_ZERO))
 			{

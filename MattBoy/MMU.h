@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "InterruptHandler.h"
+#include "Tile.h"
 
 namespace mattboy {
 
@@ -24,6 +25,10 @@ namespace mattboy {
 		void WriteByte(uint16_t address, uint8_t value);
 
 		const uint8_t * GetVideoRam();
+		const Tile& GetTileById(int tileId);
+
+		static const int TILE_COUNT = 255;
+
 
 	private:
 		std::shared_ptr<Cartridge> cart_;
@@ -36,6 +41,8 @@ namespace mattboy {
 		int current_ram_bank_;
 
 		InterruptHandler& interrupt_handler_;
+
+		Tile tiles_[TILE_COUNT];
 
 		// rom_0_[0x4000];
 		// rom_n_[0x4000];
