@@ -1,78 +1,100 @@
 #include "Menus.h"
 
-namespace Menus {
+const int
+Menus::IDM_MAIN_FILE_LOAD_ROM,
+Menus::IDM_MAIN_FILE_SAVE_STATE,
+Menus::IDM_MAIN_FILE_LOAD_STATE,
+Menus::IDM_MAIN_FILE_QUIT,
 
-	HMENU CreateMainWindowMenus()
-	{
-		HMENU menuBar = CreateMenu();
+Menus::IDM_MAIN_EMULATION_PAUSE,
+Menus::IDM_MAIN_EMULATION_RESET,
+Menus::IDM_MAIN_EMULATION_SPEED_1,
+Menus::IDM_MAIN_EMULATION_SPEED_2,
+Menus::IDM_MAIN_EMULATION_SPEED_5,
+Menus::IDM_MAIN_EMULATION_SPEED_10,
 
-		// File menu
-		HMENU fileMenu = CreateMenu();
+Menus::IDM_MAIN_VIEW_WINDOW_SIZE_100,
+Menus::IDM_MAIN_VIEW_WINDOW_SIZE_200,
+Menus::IDM_MAIN_VIEW_WINDOW_SIZE_300,
+Menus::IDM_MAIN_VIEW_WINDOW_SIZE_400,
+Menus::IDM_MAIN_VIEW_WINDOW_SIZE_500,
+Menus::IDM_MAIN_VIEW_TILES,
+Menus::IDM_MAIN_VIEW_DEBUG,
+Menus::IDM_MAIN_VIEW_COLOR_CLASSIC,
+Menus::IDM_MAIN_VIEW_COLOR_GRAYSCALE;
 
-		AppendMenu(fileMenu, MF_STRING, IDM_MAIN_FILE_LOAD_ROM, "Load Cartridge");
-		
-		AppendMenu(fileMenu, MF_SEPARATOR, 0, NULL);
+HMENU Menus::menuBar;
+HMENU Menus::fileMenu, Menus::emulationMenu, Menus::viewMenu;
 
-		AppendMenu(fileMenu, MF_STRING, IDM_MAIN_FILE_SAVE_STATE, "Save State");
-		AppendMenu(fileMenu, MF_STRING, IDM_MAIN_FILE_LOAD_STATE, "Load State");
-		
-		AppendMenu(fileMenu, MF_SEPARATOR, 0, NULL);
+HMENU Menus::CreateMainWindowMenus()
+{
+	Menus::menuBar = CreateMenu();
 
-		AppendMenu(fileMenu, MF_STRING, IDM_MAIN_FILE_QUIT, "Quit");
-		
-		AppendMenu(menuBar, MF_POPUP, (UINT_PTR)fileMenu, "File");
+	// File menu
+	fileMenu = CreateMenu();
 
+	AppendMenu(fileMenu, MF_STRING, Menus::IDM_MAIN_FILE_LOAD_ROM, "Load Cartridge");
 
-		// Emulation menu
-		HMENU emulationMenu = CreateMenu();
-		HMENU emulationSpeedMenu = CreateMenu();
+	AppendMenu(fileMenu, MF_SEPARATOR, 0, NULL);
 
-		AppendMenu(emulationMenu, MF_STRING, IDM_MAIN_EMULATION_PAUSE, "Pause");
-		CheckMenuItem(emulationMenu, MF_STRING, MF_UNCHECKED);
-		AppendMenu(emulationMenu, MF_STRING, IDM_MAIN_EMULATION_RESET, "Reset");
-		
-		AppendMenu(emulationMenu, MF_SEPARATOR, 0, NULL);
-		
-		AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_1, "x1");
-		AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_2, "x2");
-		AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_5, "x5");
-		AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_10, "x10");
-		CheckMenuRadioItem(emulationSpeedMenu, IDM_MAIN_EMULATION_SPEED_1, IDM_MAIN_EMULATION_SPEED_10, IDM_MAIN_EMULATION_SPEED_1, MF_BYCOMMAND);
-		AppendMenu(emulationMenu, MF_POPUP | MF_STRING, (UINT_PTR)emulationSpeedMenu, "Speed");
-	
-		AppendMenu(menuBar, MF_POPUP, (UINT_PTR)emulationMenu, "Emulation");
-		
-		
-		// View menu
-		HMENU viewMenu = CreateMenu();
-		HMENU viewWindowSizeMenu = CreateMenu();
-		HMENU viewColorMenu = CreateMenu();
+	AppendMenu(fileMenu, MF_STRING, IDM_MAIN_FILE_SAVE_STATE, "Save State");
+	AppendMenu(fileMenu, MF_STRING, IDM_MAIN_FILE_LOAD_STATE, "Load State");
 
-		AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_100, "100%");
-		AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_200, "200%");
-		AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_300, "300%");
-		AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_400, "400%");
-		AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_500, "500%");
-		CheckMenuRadioItem(viewWindowSizeMenu, IDM_MAIN_VIEW_WINDOW_SIZE_100, IDM_MAIN_VIEW_WINDOW_SIZE_500, IDM_MAIN_VIEW_WINDOW_SIZE_200, MF_BYCOMMAND);
-		AppendMenu(viewMenu, MF_POPUP | MF_STRING, (UINT_PTR)viewWindowSizeMenu, "Window Size");
-		
-		AppendMenu(viewMenu, MF_SEPARATOR, 0, NULL);
-		AppendMenu(viewMenu, MF_STRING, IDM_MAIN_VIEW_TILES, "Tile Viewer");
-		CheckMenuItem(viewMenu, IDM_MAIN_VIEW_TILES, MF_UNCHECKED);
-		
-		AppendMenu(viewMenu, MF_STRING, IDM_MAIN_VIEW_DEBUG, "Debugger");
-		CheckMenuItem(viewMenu, IDM_MAIN_VIEW_DEBUG, MF_UNCHECKED);
-		AppendMenu(viewMenu, MF_SEPARATOR, 0, NULL);
+	AppendMenu(fileMenu, MF_SEPARATOR, 0, NULL);
 
-		AppendMenu(viewColorMenu, MF_STRING, IDM_MAIN_VIEW_COLOR_CLASSIC, "Classic");
-		AppendMenu(viewColorMenu, MF_STRING, IDM_MAIN_VIEW_COLOR_GRAYSCALE, "Grayscale");
-		CheckMenuRadioItem(viewColorMenu, IDM_MAIN_VIEW_COLOR_CLASSIC, IDM_MAIN_VIEW_COLOR_GRAYSCALE, IDM_MAIN_VIEW_COLOR_CLASSIC, MF_BYCOMMAND);
-		AppendMenu(viewMenu, MF_POPUP | MF_STRING, (UINT_PTR)viewColorMenu, "Color Scheme");
+	AppendMenu(fileMenu, MF_STRING, IDM_MAIN_FILE_QUIT, "Quit");
 
-		AppendMenu(menuBar, MF_POPUP, (UINT_PTR)viewMenu, "View");
+	AppendMenu(menuBar, MF_POPUP, (UINT_PTR)fileMenu, "File");
 
 
-		return menuBar;
-	}
+	// Emulation menu
+	emulationMenu = CreateMenu();
+	HMENU emulationSpeedMenu = CreateMenu();
 
-};
+	AppendMenu(emulationMenu, MF_STRING, IDM_MAIN_EMULATION_PAUSE, "Pause");
+	CheckMenuItem(emulationMenu, MF_STRING, MF_UNCHECKED);
+	AppendMenu(emulationMenu, MF_STRING, IDM_MAIN_EMULATION_RESET, "Reset");
+
+	AppendMenu(emulationMenu, MF_SEPARATOR, 0, NULL);
+
+	AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_1, "x1");
+	AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_2, "x2");
+	AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_5, "x5");
+	AppendMenu(emulationSpeedMenu, MF_STRING, IDM_MAIN_EMULATION_SPEED_10, "x10");
+	CheckMenuRadioItem(emulationSpeedMenu, IDM_MAIN_EMULATION_SPEED_1, IDM_MAIN_EMULATION_SPEED_10, IDM_MAIN_EMULATION_SPEED_1, MF_BYCOMMAND);
+	AppendMenu(emulationMenu, MF_POPUP | MF_STRING, (UINT_PTR)emulationSpeedMenu, "Speed");
+
+	AppendMenu(menuBar, MF_POPUP, (UINT_PTR)emulationMenu, "Emulation");
+
+
+	// View menu
+	viewMenu = CreateMenu();
+	HMENU viewWindowSizeMenu = CreateMenu();
+	HMENU viewColorMenu = CreateMenu();
+
+	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_100, "100%");
+	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_200, "200%");
+	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_300, "300%");
+	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_400, "400%");
+	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_500, "500%");
+	CheckMenuRadioItem(viewWindowSizeMenu, IDM_MAIN_VIEW_WINDOW_SIZE_100, IDM_MAIN_VIEW_WINDOW_SIZE_500, IDM_MAIN_VIEW_WINDOW_SIZE_200, MF_BYCOMMAND);
+	AppendMenu(viewMenu, MF_POPUP | MF_STRING, (UINT_PTR)viewWindowSizeMenu, "Window Size");
+
+	AppendMenu(viewColorMenu, MF_STRING, IDM_MAIN_VIEW_COLOR_CLASSIC, "Classic");
+	AppendMenu(viewColorMenu, MF_STRING, IDM_MAIN_VIEW_COLOR_GRAYSCALE, "Grayscale");
+	CheckMenuRadioItem(viewColorMenu, IDM_MAIN_VIEW_COLOR_CLASSIC, IDM_MAIN_VIEW_COLOR_GRAYSCALE, IDM_MAIN_VIEW_COLOR_CLASSIC, MF_BYCOMMAND);
+	AppendMenu(viewMenu, MF_POPUP | MF_STRING, (UINT_PTR)viewColorMenu, "Colour Scheme");
+
+	AppendMenu(viewMenu, MF_SEPARATOR, 0, NULL);
+	AppendMenu(viewMenu, MF_STRING, IDM_MAIN_VIEW_TILES, "Tile Viewer");
+	CheckMenuItem(viewMenu, IDM_MAIN_VIEW_TILES, MF_UNCHECKED);
+
+	AppendMenu(viewMenu, MF_STRING, IDM_MAIN_VIEW_DEBUG, "Debugger");
+	CheckMenuItem(viewMenu, IDM_MAIN_VIEW_DEBUG, MF_UNCHECKED);
+
+	AppendMenu(menuBar, MF_POPUP, (UINT_PTR)viewMenu, "View");
+
+
+	return menuBar;
+}
+

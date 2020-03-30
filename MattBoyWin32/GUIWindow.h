@@ -18,6 +18,7 @@ public:
 
 	void SetScale(int scale);
 	HWND GetHwnd();
+	void SetVisible(bool visible);
 
 private:
 	static std::map<HWND, MenuCallback> menuCallbacks;

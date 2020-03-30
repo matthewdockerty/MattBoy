@@ -1,2 +1,14 @@
-﻿  MattBoy.cpp
+﻿  Util.cpp
+c:\users\matthew\desktop\programming projects\mattboycpp\mattboy\util.cpp(23): warning C4244: 'argument': conversion from 'std::streamoff' to 'const unsigned int', possible loss of data
+  Tile.cpp
+  MMU.cpp
+  MBCNone.cpp
+  MattBoy.cpp
+  InterruptHandler.cpp
+  GPU.cpp
+  Gameboy.cpp
+  CPU.cpp
+  Cartridge.cpp
+  Generating Code...
+c:\users\matthew\desktop\programming projects\mattboycpp\mattboy\gpu.cpp(107): warning C4715: 'mattboy::GPU::GetColorFromPalette': not all control paths return a value
   MattBoy.vcxproj -> C:\Users\Matthew\Desktop\Programming Projects\MattBoyCpp\Debug\MattBoy.exe

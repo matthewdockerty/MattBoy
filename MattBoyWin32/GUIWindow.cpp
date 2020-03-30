@@ -113,6 +113,11 @@ HWND GUIWindow::GetHwnd()
 	return hwnd_;
 }
 
+void GUIWindow::SetVisible(bool visible)
+{
+	ShowWindow(hwnd_, visible ? SW_SHOW : SW_HIDE);
+}
+
 void GUIWindow::SetScale(int scale)
 {
 	scale_ = scale;

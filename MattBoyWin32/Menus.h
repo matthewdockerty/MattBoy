@@ -2,8 +2,10 @@
 
 #include <Windows.h>
 
-namespace Menus {
-	const int
+class Menus {
+public:
+
+	static const int
 		IDM_MAIN_FILE_LOAD_ROM = 1,
 		IDM_MAIN_FILE_SAVE_STATE = 2,
 		IDM_MAIN_FILE_LOAD_STATE = 3,
@@ -26,6 +28,9 @@ namespace Menus {
 		IDM_MAIN_VIEW_COLOR_CLASSIC = 18,
 		IDM_MAIN_VIEW_COLOR_GRAYSCALE = 19;
 
-	HMENU CreateMainWindowMenus();
+	static HMENU menuBar;
+	static HMENU fileMenu, emulationMenu, viewMenu;
+
+	static HMENU CreateMainWindowMenus();
 };
 
