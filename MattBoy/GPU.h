@@ -4,9 +4,6 @@
 #include "GPUMode.h"
 #include "MMU.h"
 
-#define SCREEN_WIDTH 160
-#define SCREEN_HEIGHT 144
-
 
 namespace mattboy {
 
@@ -19,7 +16,9 @@ namespace mattboy {
 		void Cycle(int cycles, MMU& mmu, InterruptHandler& interrupt_handler);
 		void Reset();
 
-		int *GetScreen();
+		const int *GetScreen();
+
+		static const int SCREEN_WIDTH = 160, SCREEN_HEIGHT = 144;
 
 	private:
 		GPUMode mode_;
@@ -51,7 +50,6 @@ namespace mattboy {
 		static const int STAT_MODE_FLAG = 0;
 
 		void ExtractTileDataFromVRAM(uint8_t tile_id, uint8_t tileData[][8], const uint8_t *vram);
-		uint32_t GetColorFromPalette(MMU& mmu, uint8_t paletteValue);
 		void DrawTilesetToScreen(MMU& mmu);
 
 	};

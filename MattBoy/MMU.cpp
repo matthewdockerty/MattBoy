@@ -1,10 +1,9 @@
 #include "MMU.h"
-
 #include <iostream>
 
 namespace mattboy{
 
-	MMU::MMU(InterruptHandler& interrupt_handler) : cart_(nullptr), memory_{ 0 }, current_rom_bank_(1), current_ram_bank_(0), interrupt_handler_(interrupt_handler)
+	MMU::MMU(InterruptHandler& interrupt_handler) : cart_(nullptr), memory_{ 0 }, current_rom_bank_(1), current_ram_bank_(0), interrupt_handler_(interrupt_handler), tileViewChanged_(false)
 	{
 
 	}
@@ -26,7 +25,8 @@ namespace mattboy{
 
 	void MMU::Reset()
 	{
-		memset(ram_video_, 0, sizeof(ram_video_));
+		memset(tileViewPixels_, 0, sizeof(*tileViewPixels_) * TILE_VIEW_WIDTH * TILE_VIEW_HEIGHT);
+		memset(ram_video_, 0, sizeof(*ram_video_) * 0x2000);
 		WriteByte(0xFF05, 0x00);
 		WriteByte(0xFF06, 0x00);
 		WriteByte(0xFF07, 0x00);
@@ -117,7 +117,7 @@ namespace mattboy{
 			// Tile data
 			if (address >= 0x8000 && address <= 0x97FF)
 			{
-				// Store a cache of tiles for efficient access
+				// Store a cache of tiles for efficient access and update tile view pixels
 				int tileNum = (address - 0x8000) / 16;
 				if (tileNum < TILE_COUNT)
 				{
@@ -129,6 +129,14 @@ namespace mattboy{
 					else
 						tiles_[tileNum].SetMSBitsForLine(tileLine, value);
 
+
+					// Update tile view
+					tileViewChanged_ = true;
+					auto tiledata = tiles_[tileNum].pixelsPalette_;
+
+					for (int i = 0; i < 8; i++) {
+						tileViewPixels_[(8 * tileNum) + (TILE_VIEW_WIDTH * tileLine) + (TILE_VIEW_WIDTH * 7 * (tileNum / 20)) + i] = GetColorFromPalette(tiledata[tileLine][i]);
+					}
 				}
 			}
 
@@ -170,8 +178,37 @@ namespace mattboy{
 		return tiles_[tileId];
 	}
 
-	const uint8_t * MMU::GetVideoRam() {
+	const uint8_t * MMU::GetVideoRam()
+	{
 		return ram_video_;
+	}
+
+	const int * MMU::GetTileViewPixels(bool clearChangedFlag)
+	{
+		tileViewChanged_ &= clearChangedFlag;
+		return tileViewPixels_;
+	}
+
+	bool MMU::HasTileViewChanged()
+	{
+		return tileViewChanged_;
+	}
+
+	uint32_t MMU::GetColorFromPalette(uint8_t paletteValue)
+	{
+		uint8_t paletteData = ReadByte(0xFF47);
+		uint8_t shade = paletteData >> (2 * paletteValue) & 0b11;
+
+		switch (shade) {
+		case 0:
+			return 0x9bbc0f;
+		case 1:
+			return 0x8bac0f;
+		case 2:
+			return 0x306230;
+		case 3:
+			return 0x0f380f;
+		}
 	}
 
 }

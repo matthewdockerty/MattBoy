@@ -9,7 +9,6 @@
 #include "Tile.h"
 
 namespace mattboy {
-
 	class MMU
 	{
 	public:
@@ -26,11 +25,18 @@ namespace mattboy {
 
 		const uint8_t * GetVideoRam();
 		const Tile& GetTileById(int tileId);
+		const int * GetTileViewPixels(bool clearChangedFlag);
+		bool HasTileViewChanged();
 
 		static const int TILE_COUNT = 255;
+		static const int TILE_VIEW_WIDTH = 160, TILE_VIEW_HEIGHT = 104;
 
+		uint32_t GetColorFromPalette(uint8_t paletteValue);
 
 	private:
+		bool tileViewChanged_;
+		int tileViewPixels_[TILE_VIEW_WIDTH * TILE_VIEW_HEIGHT];
+
 		std::shared_ptr<Cartridge> cart_;
 
 		// ROM banks & external RAM are handled by MBC
@@ -56,6 +62,7 @@ namespace mattboy {
 		// io_registers_[0x80];
 		// high_ram_[0x7F];
 		// interrupt_enable_;
+
 	};
 
 }

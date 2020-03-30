@@ -40,6 +40,11 @@ namespace mattboy {
 		running_ = value;
 	}
 
+	bool Gameboy::IsRunning()
+	{
+		return running_;
+	}
+
 	int Gameboy::Cycle()
 	{
 		if (running_ && mmu_.GetCartridge() != nullptr && mmu_.GetCartridge()->IsValid())
@@ -92,9 +97,19 @@ namespace mattboy {
 		return 0;
 	}
 
-	int *Gameboy::GetScreen()
+	const int * Gameboy::GetScreen()
 	{
 		return gpu_.GetScreen();
+	}
+
+	const int * Gameboy::GetTileViewPixels(bool clearChangedFlag)
+	{
+		return mmu_.GetTileViewPixels(clearChangedFlag);
+	}
+
+	bool Gameboy::HasTileViewChanged()
+	{
+		return mmu_.HasTileViewChanged();
 	}
 
 }

@@ -3,7 +3,7 @@
 
 std::map<HWND, GUIWindow::MenuCallback> GUIWindow::menuCallbacks;
 
-GUIWindow::GUIWindow(LPCSTR title, int width, int height, HWND parent, HMENU menu, MenuCallback menuCallback, HINSTANCE hInstance, bool show, std::shared_ptr<bool>& quit) : width_(width), height_(height), scale_(1), parent_(parent), quit_(quit)
+GUIWindow::GUIWindow(LPCWSTR title, int width, int height, HWND parent, HMENU menu, MenuCallback menuCallback, HINSTANCE hInstance, bool show, std::shared_ptr<bool>& quit) : width_(width), height_(height), scale_(1), parent_(parent), quit_(quit)
 {
 	if (parent == NULL)
 		RegisterWinClass(hInstance);
@@ -15,10 +15,22 @@ GUIWindow::GUIWindow(LPCSTR title, int width, int height, HWND parent, HMENU men
 		ShowWindow(hwnd_, SW_SHOW);
 
 	menuCallbacks.insert(std::make_pair(hwnd_, menuCallback));
+
+
+	hdc_ = GetDC(hwnd_);
+	bmi_ = {
+		sizeof(BITMAPINFOHEADER),
+		width,
+		-height,
+		1,
+		32
+	};
+
 }
 
 GUIWindow::~GUIWindow()
 {
+	ReleaseDC(hwnd_, hdc_);
 }
 
 void GUIWindow::RegisterWinClass(HINSTANCE hInstance)
@@ -38,24 +50,24 @@ void GUIWindow::RegisterWinClass(HINSTANCE hInstance)
 
 	if (!RegisterClassEx(&wc_))
 	{
-		MessageBox(NULL, "Failed to register window", "Error", MB_ICONERROR | MB_OK);
+		MessageBox(NULL, L"Failed to register window", L"Error", MB_ICONERROR | MB_OK);
 		exit(1);
 	}
 }
 
-void GUIWindow::CreateWin(LPCSTR title, HINSTANCE hInstance, HMENU menu)
+void GUIWindow::CreateWin(LPCWSTR title, HINSTANCE hInstance, HMENU menu)
 {
 	hwnd_ = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		WINDOW_CLASS_NAME,
 		title,
-		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | (parent_ == NULL ? WS_MINIMIZEBOX : 0),
+		WS_OVERLAPPED | WS_CAPTION | (parent_ == NULL ? WS_SYSMENU : 0) | (parent_ == NULL ? WS_MINIMIZEBOX : 0),
 		CW_USEDEFAULT, CW_USEDEFAULT, width_, height_,
 		parent_, menu, hInstance, NULL);
 
 	if (hwnd_ == NULL)
 	{
-		MessageBox(NULL, "Failed to create window", "Error", MB_ICONERROR | MB_OK);
+		MessageBox(NULL, L"Failed to create window", L"Error", MB_ICONERROR | MB_OK);
 		exit(1);
 	}
 
@@ -131,4 +143,14 @@ void GUIWindow::SetScale(int scale)
 	diff.x = (window.right - window.left) - client.right;
 	diff.y = (window.bottom - window.top) - client.bottom;
 	MoveWindow(hwnd_, window.left, window.top, width + diff.x, height + diff.y, TRUE);
+}
+
+void GUIWindow::DisplayPixels(const int* pixels)
+{
+	StretchDIBits(hdc_, 0, 0, width_ * scale_, height_ * scale_, 0, 0, width_, height_, pixels, &bmi_, 0, SRCCOPY);
+}
+
+void GUIWindow::SetTitle(LPCWSTR title)
+{
+	SetWindowText(hwnd_, title);
 }

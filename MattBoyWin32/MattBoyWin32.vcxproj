@@ -29,7 +29,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -123,6 +123,11 @@
   <ItemGroup>
     <ClInclude Include="GUIWindow.h" />
     <ClInclude Include="Menus.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MattBoy\MattBoy.vcxproj">
+      <Project>{32be06e7-b7a2-4b3e-9d32-f32f419d6eee}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

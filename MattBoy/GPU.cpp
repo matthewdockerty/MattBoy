@@ -69,8 +69,8 @@ namespace mattboy {
 
 				const uint8_t *vram = mmu.GetVideoRam();
 				
-				if (line_ == 140)
-				DrawTilesetToScreen(mmu);
+				//if (line_ == 140)
+				//DrawTilesetToScreen(mmu);
 			}
 			break;
 		}
@@ -89,23 +89,6 @@ namespace mattboy {
 		}
 	}
 
-	uint32_t GPU::GetColorFromPalette(MMU& mmu, uint8_t paletteValue)
-	{
-		uint8_t paletteData = mmu.ReadByte(0xFF47);
-		uint8_t shade = paletteData >> (2 * paletteValue) & 0b11;
-
-		switch (shade) {
-		case 0:
-			return 0x9bbc0f;
-		case 1:
-			return 0x8bac0f;
-		case 2:
-			return 0x306230;
-		case 3:
-			return 0x0f380f;
-		}
-	}
-
 	void GPU::DrawTilesetToScreen(MMU& mmu)
 	{
 
@@ -114,7 +97,7 @@ namespace mattboy {
 			auto tiledata = mmu.GetTileById(offset).pixelsPalette_;
 			for (int i = 0; i < 8; i++) {
 				for (int j = 0; j < 8; j++) {
-					screen_[(8 * offset) + (SCREEN_WIDTH * j) + (SCREEN_WIDTH * 8 * (offset / 20)) + i] = GetColorFromPalette(mmu, tiledata[j][i]);
+					screen_[(8 * offset) + (SCREEN_WIDTH * j) + (SCREEN_WIDTH * 7 * (offset / 20)) + i] = mmu.GetColorFromPalette(tiledata[j][i]);
 				}
 			}
 		}
@@ -125,10 +108,10 @@ namespace mattboy {
 		std::cout << "TODO: GPU Reset!" << std::endl;
 
 		for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
-			screen_[i] = 0x9bbc0f;
+			screen_[i] = 0x000000;
 	}
 
-	int * GPU::GetScreen()
+	const int * GPU::GetScreen()
 	{
 		return screen_;
 	}

@@ -20,8 +20,12 @@ namespace mattboy {
 
 		int Cycle();
 		void SetRunning(bool value);
+		bool IsRunning();
 
-		int *GetScreen();
+		const int * GetScreen();
+		const int * GetTileViewPixels(bool clearChangedFlag);
+		bool HasTileViewChanged();
+
 
 	private:
 		InterruptHandler interrupt_handler_;
