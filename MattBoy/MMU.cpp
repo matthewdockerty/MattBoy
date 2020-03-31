@@ -135,7 +135,7 @@ namespace mattboy{
 					auto tiledata = tiles_[tileNum].pixelsPalette_;
 
 					for (int i = 0; i < 8; i++) {
-						tileViewPixels_[(8 * tileNum) + (TILE_VIEW_WIDTH * tileLine) + (TILE_VIEW_WIDTH * 7 * (tileNum / 20)) + i] = GetColorFromPalette(tiledata[tileLine][i]);
+						tileViewPixels_[(8 * tileNum) + (TILE_VIEW_WIDTH * tileLine) + (TILE_VIEW_WIDTH * 7 * (tileNum / TILE_VIEW_ROW_LENGTH)) + i] = GetColorFromPalette(tiledata[tileLine][i]);
 					}
 				}
 			}

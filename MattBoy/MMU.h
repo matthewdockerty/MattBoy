@@ -28,8 +28,9 @@ namespace mattboy {
 		const int * GetTileViewPixels(bool clearChangedFlag);
 		bool HasTileViewChanged();
 
-		static const int TILE_COUNT = 255;
-		static const int TILE_VIEW_WIDTH = 160, TILE_VIEW_HEIGHT = 104;
+		static const int TILE_COUNT = 255 + 127;
+		static const int TILE_VIEW_ROW_LENGTH = 24;
+		static const int TILE_VIEW_WIDTH = TILE_VIEW_ROW_LENGTH * 8, TILE_VIEW_HEIGHT = 128;
 
 		uint32_t GetColorFromPalette(uint8_t paletteValue);
 
