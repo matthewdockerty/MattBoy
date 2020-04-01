@@ -16,7 +16,7 @@
 
 
 std::shared_ptr<bool> quit;
-std::unique_ptr<GUIWindow> mainWindow, tilesWindow;
+std::unique_ptr<GUIWindow> mainWindow, tilesWindow, bgMapWindow;
 std::unique_ptr<mattboy::Gameboy> gameboy;
 
 void CreateConsoleWindow()
@@ -82,9 +82,9 @@ void LoadROM()
 			{
 				std::string title = "MattBoy Classic - " + gameboy->GetCartridge()->GetTitle();
 				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				std::wstring wTitle = converter.from_bytes(title);
-
-				mainWindow->SetTitle(wTitle.c_str());
+				//std::wstring wTitle = converter.from_bytes(title);
+				
+				//mainWindow->SetTitle(wTitle.c_str());
 				gameboy->SetRunning(true);
 			}
 			else
@@ -137,7 +137,22 @@ void MainWindowMenuCallback(UINT_PTR itemId)
 			tilesWindow->SetVisible(true);
 			CheckMenuItem(Menus::viewMenu, Menus::IDM_MAIN_VIEW_TILES, MF_CHECKED);
 		}
+		break;
 
+	case Menus::IDM_MAIN_VIEW_BACKGROUND_MAP:
+		state = GetMenuState(Menus::viewMenu, Menus::IDM_MAIN_VIEW_BACKGROUND_MAP, MF_BYCOMMAND);
+		if (state == MF_CHECKED)
+		{
+			bgMapWindow->SetVisible(false);
+			CheckMenuItem(Menus::viewMenu, Menus::IDM_MAIN_VIEW_BACKGROUND_MAP, MF_UNCHECKED);
+		}
+		else
+		{
+			bgMapWindow->DisplayPixels(gameboy->GetBackgroundMapViewPixels(true));
+			bgMapWindow->SetVisible(true);
+			CheckMenuItem(Menus::viewMenu, Menus::IDM_MAIN_VIEW_BACKGROUND_MAP, MF_CHECKED);
+		}
+		break;
 		break;
 	case Menus::IDM_MAIN_VIEW_DEBUG: break;
 	case Menus::IDM_MAIN_VIEW_COLOR_CLASSIC: break;
@@ -176,10 +191,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	quit = std::make_shared<bool>(false);
 
 	mainWindow = std::make_unique<GUIWindow>(L"MattBoy Classic", mattboy::GPU::SCREEN_WIDTH, mattboy::GPU::SCREEN_HEIGHT, (HWND)NULL, Menus::CreateMainWindowMenus(), MainWindowMenuCallback, hInstance, true, quit);
-	mainWindow->SetScale(2);
+	mainWindow->SetScale(3);
 
 	tilesWindow = std::make_unique<GUIWindow>(L"Tile Viewer", mattboy::MMU::TILE_VIEW_WIDTH, mattboy::MMU::TILE_VIEW_HEIGHT, mainWindow->GetHwnd(), (HMENU)NULL, nullptr, hInstance, false, quit);
-	tilesWindow->SetScale(2);
+	tilesWindow->SetScale(1);
+
+	bgMapWindow = std::make_unique<GUIWindow>(L"Background Map Viewer", mattboy::MMU::BACKGROUND_MAP_VIEW_WIDTH, mattboy::MMU::BACKGROUND_MAP_VIEW_HEIGHT, mainWindow->GetHwnd(), (HMENU)NULL, nullptr, hInstance, false, quit);
+
 	gameboy = std::make_unique<mattboy::Gameboy>();
 
 	std::thread gameboyThread(GameboyLoop);
@@ -188,9 +206,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		mainWindow->MessageProcess();
 		tilesWindow->MessageProcess();
+		
+		if (gameboy->IsRunning())
+		{
+			if (gameboy->HasTileViewChanged())
+				tilesWindow->DisplayPixels(gameboy->GetTileViewPixels(true));
 
-		if (gameboy->IsRunning() && gameboy->HasTileViewChanged())
-			tilesWindow->DisplayPixels(gameboy->GetTileViewPixels(true));
+			//if (gameboy->HasBackgroundMapViewChanged())
+				bgMapWindow->DisplayPixels(gameboy->GetBackgroundMapViewPixels(true));
+		}
 	}
 
 	gameboyThread.join();

@@ -25,7 +25,8 @@ namespace mattboy {
 		const int * GetScreen();
 		const int * GetTileViewPixels(bool clearChangedFlag);
 		bool HasTileViewChanged();
-
+		const int * GetBackgroundMapViewPixels(bool clearChangedFlag);
+		bool HasBackgroundMapViewChanged();
 
 	private:
 		InterruptHandler interrupt_handler_;

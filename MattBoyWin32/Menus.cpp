@@ -77,7 +77,7 @@ HMENU Menus::CreateMainWindowMenus()
 	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_300, L"300%");
 	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_400, L"400%");
 	AppendMenu(viewWindowSizeMenu, MF_STRING, IDM_MAIN_VIEW_WINDOW_SIZE_500, L"500%");
-	CheckMenuRadioItem(viewWindowSizeMenu, IDM_MAIN_VIEW_WINDOW_SIZE_100, IDM_MAIN_VIEW_WINDOW_SIZE_500, IDM_MAIN_VIEW_WINDOW_SIZE_200, MF_BYCOMMAND);
+	CheckMenuRadioItem(viewWindowSizeMenu, IDM_MAIN_VIEW_WINDOW_SIZE_100, IDM_MAIN_VIEW_WINDOW_SIZE_500, IDM_MAIN_VIEW_WINDOW_SIZE_300, MF_BYCOMMAND);
 	AppendMenu(viewMenu, MF_POPUP | MF_STRING, (UINT_PTR)viewWindowSizeMenu, L"Window Size");
 
 	AppendMenu(viewColorMenu, MF_STRING, IDM_MAIN_VIEW_COLOR_CLASSIC, L"Classic");
@@ -88,6 +88,9 @@ HMENU Menus::CreateMainWindowMenus()
 	AppendMenu(viewMenu, MF_SEPARATOR, 0, NULL);
 	AppendMenu(viewMenu, MF_STRING, IDM_MAIN_VIEW_TILES, L"Tile Viewer");
 	CheckMenuItem(viewMenu, IDM_MAIN_VIEW_TILES, MF_UNCHECKED);
+
+	AppendMenu(viewMenu, MF_STRING, IDM_MAIN_VIEW_BACKGROUND_MAP, L"Background Map Viewer");
+	CheckMenuItem(viewMenu, IDM_MAIN_VIEW_BACKGROUND_MAP, MF_UNCHECKED);
 
 	AppendMenu(viewMenu, MF_STRING, IDM_MAIN_VIEW_DEBUG, L"Debugger");
 	CheckMenuItem(viewMenu, IDM_MAIN_VIEW_DEBUG, MF_UNCHECKED);

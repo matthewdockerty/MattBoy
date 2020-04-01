@@ -29,6 +29,7 @@ namespace mattboy {
 		// LY 0xFF44
 		uint8_t line_;
 
+		/*
 		// LCD Control Register (LCDC 0xFF40)
 		uint8_t lcdc_;
 		static const int LCDC_LCD_DISPLAY_ENABLE = 7;
@@ -39,6 +40,7 @@ namespace mattboy {
 		static const int LCDC_SPRITE_SIZE = 2;
 		static const int LCDC_SPRITE_DISPLAY_ENABLE = 1;
 		static const int LCDC_BG_DISPLAY = 0;
+		*/
 
 		// LCD Status Register (STAT 0xFF41)
 		uint8_t stat_;

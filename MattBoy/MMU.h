@@ -27,16 +27,24 @@ namespace mattboy {
 		const Tile& GetTileById(int tileId);
 		const int * GetTileViewPixels(bool clearChangedFlag);
 		bool HasTileViewChanged();
+		const int * GetBackgroundMapViewPixels(bool clearChangedFlag);
+		bool HasBackgroundMapViewChanged();
 
 		static const int TILE_COUNT = 255 + 127;
 		static const int TILE_VIEW_ROW_LENGTH = 24;
 		static const int TILE_VIEW_WIDTH = TILE_VIEW_ROW_LENGTH * 8, TILE_VIEW_HEIGHT = 128;
 
+		static const int BACKGROUND_MAP_VIEW_WIDTH = 32 * 8;
+		static const int BACKGROUND_MAP_VIEW_HEIGHT = 32 * 8 * 2;
+
 		uint32_t GetColorFromPalette(uint8_t paletteValue);
 
 	private:
-		bool tileViewChanged_;
 		int tileViewPixels_[TILE_VIEW_WIDTH * TILE_VIEW_HEIGHT];
+		bool tileViewChanged_;
+
+		int backgroundMapViewPixels_[BACKGROUND_MAP_VIEW_WIDTH * BACKGROUND_MAP_VIEW_HEIGHT];
+		bool backgroundMapViewChanged_;
 
 		std::shared_ptr<Cartridge> cart_;
 
@@ -50,6 +58,8 @@ namespace mattboy {
 		InterruptHandler& interrupt_handler_;
 
 		Tile tiles_[TILE_COUNT];
+
+		int GetCurrentBGTileData();
 
 		// rom_0_[0x4000];
 		// rom_n_[0x4000];

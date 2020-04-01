@@ -91,12 +91,13 @@ namespace mattboy {
 		switch (type)
 		{
 		case ROM_ONLY:
+		case MBC1:
 		case ROM_RAM:
 		case ROM_RAM_BATTERY:
 			mem_bank_controller_ = std::make_shared<MBCNone>(type, rom_size, ram_size, type, data);
 			break;
 		default:
-			std::cerr << "ROM type unimplemented" << std::endl;
+			std::cerr << "ROM type: " << type << " unimplemented" << std::endl;
 			valid_ = false;
 			break;
 		}

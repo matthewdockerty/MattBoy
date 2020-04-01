@@ -111,7 +111,7 @@ namespace mattboy {
 			cycles += 4;
 			REG_B++;
 			SetFlag(FLAG_ZERO, REG_B == 0);
-			SetFlag(FLAG_ADD_SUB, true);
+			SetFlag(FLAG_ADD_SUB, false);
 			SetFlag(FLAG_HALF_CARRY, (REG_B & 0x0F) == 0x0F);
 			break;
 
@@ -126,6 +126,16 @@ namespace mattboy {
 		case 0x06: // LD B n
 			cycles += 8;
 			SetRegister(REG_B, mmu.ReadByte(pc_++));
+			break;
+
+		case 0x08: // LD (a16),SP
+			{
+				cycles += 20;
+				uint16_t address = mmu.Read2Bytes(pc_);
+				pc_ += 2;
+				mmu.WriteByte(address, static_cast<uint8_t>(sp_ & 0xF));
+				mmu.WriteByte(address + 1, static_cast<uint8_t>((sp_ >> 8) & 0xF));
+			}
 			break;
 
 		case 0x09: // ADD HL,BC
@@ -190,7 +200,7 @@ namespace mattboy {
 			cycles += 4;
 			REG_B++;
 			SetFlag(FLAG_ZERO, REG_B == 0);
-			SetFlag(FLAG_ADD_SUB, true);
+			SetFlag(FLAG_ADD_SUB, false);
 			SetFlag(FLAG_HALF_CARRY, (REG_B & 0x0F) == 0x0F);
 			break;
 
@@ -236,6 +246,19 @@ namespace mattboy {
 		}
 		break;
 
+		case 0x1b: // DEC DE
+			cycles += 8;
+			SetRegisterPair(REG_D, REG_E, GetRegisterPair(REG_D, REG_E) - 1);
+			break;
+
+		case 0x1c: // INC E
+			cycles += 4;
+			REG_E++;
+			SetFlag(FLAG_ZERO, REG_E == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, (REG_E & 0x0F) == 0x0F);
+			break;
+
 		case 0x1d: // DEC E
 			cycles += 4;
 			REG_E--;
@@ -275,6 +298,27 @@ namespace mattboy {
 		case 0x23: // INC HL
 			cycles += 8;
 			SetRegisterPair(REG_H, REG_L, GetRegisterPair(REG_H, REG_L) + 1);
+			break;
+
+		case 0x24: // INC H
+			cycles += 4;
+			REG_H++;
+			SetFlag(FLAG_ZERO, REG_H == 0);
+			SetFlag(FLAG_ADD_SUB, false);
+			SetFlag(FLAG_HALF_CARRY, (REG_H & 0x0F) == 0x0F);
+			break;
+
+		case 0x25: // DEC H
+			cycles += 4;
+			REG_H--;
+			SetFlag(FLAG_ZERO, REG_H == 0);
+			SetFlag(FLAG_ADD_SUB, true);
+			SetFlag(FLAG_HALF_CARRY, (REG_H & 0x0F) == 0x0F);
+			break;
+
+		case 0x26: // LD H,d8
+			cycles += 8;
+			SetRegister(REG_H, mmu.ReadByte(pc_++));
 			break;
 
 		case 0x27: // DAA
@@ -318,6 +362,18 @@ namespace mattboy {
 			}
 			break;
 
+		case 0x29: // ADD HL,HL
+			{
+				cycles += 8;
+				uint16_t hl = GetRegisterPair(REG_H, REG_L);
+				int result = hl + hl;
+				SetFlag(FLAG_ADD_SUB, false);
+				SetFlag(FLAG_CARRY, (result & 0x10000) != 0);
+				SetFlag(FLAG_HALF_CARRY, ((hl ^ hl ^ (result & 0xFFFF)) & 0x1000) != 0);
+				SetRegisterPair(REG_H, REG_L, static_cast<uint16_t>(result));
+			}
+			break;
+
 		case 0x2A: // LD A,(HL+)
 		{
 			cycles += 8;
@@ -336,7 +392,7 @@ namespace mattboy {
 			cycles += 4;
 			REG_L++;
 			SetFlag(FLAG_ZERO, REG_L == 0);
-			SetFlag(FLAG_ADD_SUB, true);
+			SetFlag(FLAG_ADD_SUB, false);
 			SetFlag(FLAG_HALF_CARRY, (REG_L & 0x0F) == 0x0F);
 			break;
 
@@ -400,7 +456,7 @@ namespace mattboy {
 			cycles += 4;
 			REG_A++;
 			SetFlag(FLAG_ZERO, REG_A == 0);
-			SetFlag(FLAG_ADD_SUB, true);
+			SetFlag(FLAG_ADD_SUB, false);
 			SetFlag(FLAG_HALF_CARRY, (REG_A & 0x0F) == 0x0F);
 			break;
 
@@ -709,9 +765,43 @@ namespace mattboy {
 			REG_A = REG_C;
 			break;
 
+		case 0x7A: // LD A,D
+			cycles += 4;
+			REG_A = REG_D;
+			break;
+
+		case 0x7B: // LD A,E
+			cycles += 4;
+			REG_A = REG_E;
+			break;
+
+		case 0x7C: // LD A,H
+			cycles += 4;
+			REG_A = REG_H;
+			break;
+
+		case 0x7D: // LD A,L
+			cycles += 4;
+			REG_A = REG_L;
+			break;
+
 		case 0x7E: // LD A,(HL)
 			cycles += 8;
 			REG_A = mmu.ReadByte(GetRegisterPair(REG_H, REG_L));
+			break;
+
+		case 0x80: // ADD A,B
+			{
+				cycles += 4;
+				int result = REG_A + REG_B;
+
+				SetFlag(FLAG_CARRY, (result & 0x10000) != 0);
+				SetFlag(FLAG_ZERO, result == 0);
+				SetFlag(FLAG_ADD_SUB, false);
+				SetFlag(FLAG_HALF_CARRY, ((REG_A ^ REG_B ^ (result & 0xFFFF)) & 0x1000) != 0);
+
+				SetRegister(REG_A, static_cast<uint8_t>(result));
+			}
 			break;
 
 		case 0x87: // ADD A,A
@@ -825,6 +915,21 @@ namespace mattboy {
 		case 0xC3: // Jump to a memory address
 			cycles += 16;
 			pc_ = mmu.Read2Bytes(pc_);
+			break;
+
+		case 0xC4: // CALL NZ,a16
+			{
+				uint16_t address = mmu.Read2Bytes(pc_);
+				pc_ += 2;
+				cycles += 12;
+				
+				if (!CheckFlag(FLAG_ZERO))
+				{
+					cycles += 12;
+					PushStack(mmu, pc_);
+					pc_ = address;
+				}
+			}
 			break;
 
 		case 0xC5: // PUSH BC
@@ -958,6 +1063,24 @@ namespace mattboy {
 		case 0xD5: // PUSH DE
 			cycles += 16;
 			PushStack(mmu, GetRegisterPair(REG_D, REG_E));
+			break;
+
+		case 0xD6: // SUB A,n
+			{
+				cycles += 8;
+				uint8_t sub = mmu.ReadByte(pc_++);
+
+				int result = REG_A - sub;
+
+				SetFlag(FLAG_CARRY, (result & 0x10000) != 0);
+				SetFlag(FLAG_ZERO, result == 0);
+				SetFlag(FLAG_ADD_SUB, true);
+
+				// TODO: Pretty sure this flag set could be implemented wrong?...
+				SetFlag(FLAG_HALF_CARRY, ((REG_A ^ sub ^ (result & 0xFFFF)) & 0x1000) != 0);
+
+				SetRegister(REG_A, static_cast<uint8_t>(result));
+			}
 			break;
 
 		case 0xD9: // RETI

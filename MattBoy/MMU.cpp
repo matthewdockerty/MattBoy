@@ -3,7 +3,7 @@
 
 namespace mattboy{
 
-	MMU::MMU(InterruptHandler& interrupt_handler) : cart_(nullptr), memory_{ 0 }, current_rom_bank_(1), current_ram_bank_(0), interrupt_handler_(interrupt_handler), tileViewChanged_(false)
+	MMU::MMU(InterruptHandler& interrupt_handler) : cart_(nullptr), memory_{ 0 }, current_rom_bank_(1), current_ram_bank_(0), interrupt_handler_(interrupt_handler), tileViewChanged_(false), backgroundMapViewChanged_(false)
 	{
 
 	}
@@ -26,6 +26,8 @@ namespace mattboy{
 	void MMU::Reset()
 	{
 		memset(tileViewPixels_, 0, sizeof(*tileViewPixels_) * TILE_VIEW_WIDTH * TILE_VIEW_HEIGHT);
+		memset(backgroundMapViewPixels_, 0, sizeof(*backgroundMapViewPixels_) * BACKGROUND_MAP_VIEW_WIDTH * BACKGROUND_MAP_VIEW_HEIGHT);
+
 		memset(ram_video_, 0, sizeof(*ram_video_) * 0x2000);
 		WriteByte(0xFF05, 0x00);
 		WriteByte(0xFF06, 0x00);
@@ -117,12 +119,12 @@ namespace mattboy{
 			// Tile data
 			if (address >= 0x8000 && address <= 0x97FF)
 			{
-				// Store a cache of tiles for efficient access and update tile view pixels
+				// Store a cache of tiles for efficient access and update tile view pixels & background map view pixels
 				int tileNum = (address - 0x8000) / 16;
 				if (tileNum < TILE_COUNT)
 				{
 					int tileLine = (address % 16) / 2;
-					
+
 					// value is least significant bits of line
 					if (address % 2 == 0)
 						tiles_[tileNum].SetLSBitsForLine(tileLine, value);
@@ -134,11 +136,60 @@ namespace mattboy{
 					tileViewChanged_ = true;
 					auto tiledata = tiles_[tileNum].pixelsPalette_;
 
-					for (int i = 0; i < 8; i++) {
+					for (int i = 0; i < 8; i++)
+					{
 						tileViewPixels_[(8 * tileNum) + (TILE_VIEW_WIDTH * tileLine) + (TILE_VIEW_WIDTH * 7 * (tileNum / TILE_VIEW_ROW_LENGTH)) + i] = GetColorFromPalette(tiledata[tileLine][i]);
 					}
+
+					// Update background map view areas which reference the update tile
+					/*for (int i = 0x9800; i <= 0x9FFF; i++)
+					{
+																		  // TODO: 255 here could have off by 1 error?
+						int tileIndex = static_cast<uint8_t>(address >= 0x8800 ? tileNum - 255 : tileNum);
+						if (ReadByte(i) == (uint8_t)tileIndex)
+						{
+							int bgTileNum = i - 0x9800;
+							if (GetCurrentBGTileData() == 0) // using second tileset with indices -128 to 127
+								printf("%d\n", tileIndex);
+							auto tiledata = tiles_[tileIndex].pixelsPalette_;
+
+							for (int i = 0; i < 8; i++)
+								for (int tileLine = 0; tileLine < 8; tileLine++)
+									backgroundMapViewPixels_[(bgTileNum * 8) + (BACKGROUND_MAP_VIEW_WIDTH * tileLine) + (7 * 256 * (bgTileNum / 32)) + i] = GetColorFromPalette(tiledata[tileLine][i]);
+
+							//printf("Updating tile: %d\n", tileIndex);
+							// TODO: Update for bgTileNum!!!!
+							// !!!!!
+							// !!!!!
+							// !!!!!
+							// !!!!!
+							// !!!!!
+							// !!!!!
+						}
+					}*/
 				}
 			}
+
+
+			// Background map data
+			if (address >= 0x9800 && address <= 0x9FFF)
+			{
+				backgroundMapViewChanged_ = true;
+				int bgTileNum = (int)address - 0x9800;
+
+				/*int tileIndex = static_cast<int>(value);
+				if (GetCurrentBGTileData() == 1) // using second tileset with indices -128 to 127
+					tileIndex += 128;*/
+				auto tiledata = tiles_[GetCurrentBGTileData() == 1 ? value : 0xA].pixelsPalette_;
+
+				for (int i = 0; i < 8; i++)
+					for (int tileLine = 0; tileLine < 8; tileLine++)
+						backgroundMapViewPixels_[(bgTileNum * 8) + (BACKGROUND_MAP_VIEW_WIDTH * tileLine) + (7 * 256 * (bgTileNum / 32)) + i] = GetColorFromPalette(tiledata[tileLine][i]);
+
+			}
+
+			// TODO: Window background map data...
+
 
 			ram_video_[address - 0x8000] = value;
 		}
@@ -194,6 +245,17 @@ namespace mattboy{
 		return tileViewChanged_;
 	}
 
+	const int * MMU::GetBackgroundMapViewPixels(bool clearChangedFlag)
+	{
+		backgroundMapViewChanged_ &= clearChangedFlag;
+		return backgroundMapViewPixels_;
+	}
+
+	bool MMU::HasBackgroundMapViewChanged()
+	{
+		return backgroundMapViewChanged_;
+	}
+
 	uint32_t MMU::GetColorFromPalette(uint8_t paletteValue)
 	{
 		uint8_t paletteData = ReadByte(0xFF47);
@@ -209,6 +271,12 @@ namespace mattboy{
 		case 3:
 			return 0x0f380f;
 		}
+	}
+
+	
+	int MMU::GetCurrentBGTileData()
+	{
+		return (ReadByte(0xFF40) >> (7-4)) & 0b1;
 	}
 
 }

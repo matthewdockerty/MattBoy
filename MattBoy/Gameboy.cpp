@@ -112,4 +112,13 @@ namespace mattboy {
 		return mmu_.HasTileViewChanged();
 	}
 
+	const int * Gameboy::GetBackgroundMapViewPixels(bool clearChangedFlag)
+	{
+		return mmu_.GetBackgroundMapViewPixels(clearChangedFlag);
+	}
+
+	bool Gameboy::HasBackgroundMapViewChanged()
+	{
+		return mmu_.HasBackgroundMapViewChanged();
+	}
 }
